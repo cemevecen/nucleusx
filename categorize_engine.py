@@ -3,6 +3,7 @@ from google import genai
 from dotenv import load_dotenv
 from database import init_db, save_tweet, tweet_exists
 import time
+import requests
 from twitter_scraper import fetch_user_tweets
 
 # .env dosyasındaki anahtarları yükler
@@ -37,19 +38,21 @@ def categorize_with_groq(text):
     
     prompt = f"Categorize this news/tweet into ONE of these: Ekonomi, Finans, Spor, Teknoloji, Eğlence, Müzik, Dünya, Ülke Gündemi. Respond with ONLY the category name.\n\nText: {text}"
     
+    # 8B modeli çok daha hızlıdır ve kotası daha yüksektir, kategori için yeterlidir.
     data = {
-        "model": "llama-3.3-70b-versatile",
+        "model": "llama3-8b-8192",
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0
     }
     
     try:
-        import requests
         response = requests.post(url, headers=headers, json=data, timeout=5)
         if response.status_code == 200:
             res = response.json()['choices'][0]['message']['content'].strip().replace(".", "")
             if res in ["Ekonomi", "Finans", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Ülke Gündemi"]:
                 return res
+        elif response.status_code == 429: # Rate limit dursa da sistem anahtar kelimeye geçmeli
+             return None
         return None
     except Exception:
         return None
@@ -146,10 +149,11 @@ def run_categorization_process():
             print(f"\n👤 GÖNDEREN: {tweet['author']} ({tweet['username']})")
             print(f"📝 TWEET: {tweet['text'][:100]}...") # Uzun tweetleri keserek basıyoruz
             
-            # 2. Rate Limiting (Ücretsiz Planı Korumak İçin)
-            # 16 hesap taranacağı için RPM (istek başına dakika) sınırına takılmamak adına 
-            # 1.5 - 2 saniye idealdir.
-            time.sleep(2) 
+            # 2. Rate Limiting (KOTA KORUMASI: SADECE ÜCRETSİZ PLANLAR)
+            # Gemini Free 15 RPM / Groq Free 30 RPM limitlerini aşmamak için 
+            # 4 saniye bekleme (Saniyede 15 istekten azına denk gelir). 
+            # Bu sayede 'Maliyet Sıfır, Kesintisizlik Tam' olur.
+            time.sleep(4) 
 
             # Yapay Zeka Devreye Girer
             kategori = categorize_tweet(tweet['text'])
