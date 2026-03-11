@@ -22,42 +22,44 @@ init_db()
 st.markdown("""
     <style>
     .main {
-        background-color: #0e1117;
+        background-color: #ffffff;
         padding: 0;
     }
     .stApp {
-        background: radial-gradient(circle at top right, #1e293b, #0f172a);
+        background-color: #f8fafc;
     }
     .block-container {
         padding-top: 2rem !important;
         padding-bottom: 0rem !important;
         max-width: 98% !important;
     }
-    /* Scoopnest Style Column Header */
+    /* Light Mode Column Header */
     .column-header {
         padding: 10px;
-        border-bottom: 3px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 3px solid #2563eb;
         margin-bottom: 20px;
         text-align: center;
-        background: rgba(255, 255, 255, 0.03);
+        background: #ffffff;
         border-radius: 10px 10px 0 0;
+        color: #1e293b;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
     .news-card {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(10px);
+        background: #ffffff;
         border-radius: 12px;
         padding: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid #e2e8f0;
         margin-bottom: 15px;
         transition: all 0.3s ease;
         display: flex;
         flex-direction: column;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     }
     .news-card:hover {
         transform: translateY(-5px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        background: rgba(255, 255, 255, 0.08);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        border: 1px solid #2563eb;
+        background: #ffffff;
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
     }
     .author-info {
         display: flex;
@@ -66,12 +68,12 @@ st.markdown("""
         margin-bottom: 10px;
     }
     .author-name {
-        color: #60a5fa;
+        color: #2563eb;
         font-weight: bold;
         font-size: 0.9rem;
     }
     .tweet-content {
-        color: #e2e8f0;
+        color: #0f172a;
         font-size: 0.95rem;
         line-height: 1.4;
         margin-bottom: 12px;
@@ -81,43 +83,41 @@ st.markdown("""
         justify-content: space-between;
         align-items: center;
         font-size: 0.75rem;
-        color: #94a3b8;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        color: #64748b;
+        border-top: 1px solid #f1f5f9;
         padding-top: 10px;
     }
-    .interaction-icons {
-        display: flex;
-        gap: 15px;
-        color: #60a5fa;
-    }
     
-    /* YATAY SCROLL (KAYDIRMA) ÖZELLİĞİ */
+    /* YATAY SCROLL (LIGHT THEME) */
     [data-testid="stHorizontalBlock"] {
         display: flex !important;
-        overflow-x: scroll !important; /* Her zaman scroll edilebilir */
+        overflow-x: scroll !important;
         flex-wrap: nowrap !important;
         gap: 15px !important;
         padding-bottom: 25px !important;
         scrollbar-width: thin;
-        scrollbar-color: #60a5fa rgba(255,255,255,0.1);
+        scrollbar-color: #2563eb #f1f5f9;
     }
     
     [data-testid="stHorizontalBlock"]::-webkit-scrollbar {
-        height: 10px; /* Daha belirgin scrollbar */
+        height: 8px;
     }
     [data-testid="stHorizontalBlock"]::-webkit-scrollbar-thumb {
-        background: #60a5fa;
-        border-radius: 5px;
+        background: #2563eb;
+        border-radius: 10px;
     }
     [data-testid="stHorizontalBlock"]::-webkit-scrollbar-track {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
+        background: #f1f5f9;
+        border-radius: 10px;
     }
     
     div[data-testid="column"] {
-        /* Ekranda tam 5 tane sığması için %19.2 (boşluklar dahil) */
         min-width: calc(19.2% - 12px) !important; 
         flex: 0 0 auto !important;
+    }
+
+    h1, h2, h3, p {
+        color: #0f172a !important;
     }
     </style>
 """, unsafe_allow_html=True)
