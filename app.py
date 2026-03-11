@@ -197,25 +197,23 @@ for i, category in enumerate(all_categories):
                 # Resim varsa HTML hazırla
                 media_html = f'<img src="{row["media_url"]}" style="width:100%; border-radius:10px; margin-bottom:10px;">' if row.get('media_url') else ""
                 
-                st.markdown(f"""
-                    <div class="news-card">
-                        <div class="author-info">
-                            <a href="{username_link}" target="_blank" style="text-decoration: none;">
-                                <span class="author-name" style="font-size: 0.8rem;">{row['author']}</span>
-                                <span style="color: #4b5563; font-size: 0.7rem;">{row['username']}</span>
-                            </a>
-                        </div>
-                        {media_html}
-                        <div class="tweet-content" style="font-size: 0.85rem;">
-                            {clickable_content}
-                        </div>
-                        <div class="card-footer" style="padding-top: 5px;">
-                            <div class="time-stamp">
-                                {row['processed_at'].split(' ')[1][:5]}
-                            </div>
-                        </div>
-                    </div>
-                """, unsafe_allow_html=True)
+                st.markdown(f"""<div class="news-card">
+<div class="author-info">
+<a href="{username_link}" target="_blank" style="text-decoration: none;">
+<span class="author-name" style="font-size: 0.8rem;">{row['author']}</span>
+<span style="color: #4b5563; font-size: 0.7rem;">{row['username']}</span>
+</a>
+</div>
+{media_html}
+<div class="tweet-content" style="font-size: 0.85rem;">
+{clickable_content}
+</div>
+<div class="card-footer" style="padding-top: 5px;">
+<div class="time-stamp">
+{row['processed_at'].split(' ')[1][:5]}
+</div>
+</div>
+</div>""", unsafe_allow_html=True)
 
 # Manuel Yenileme Butonu (Test İçin Sınırsız, Ancak Kota Dostu)
 if st.sidebar.button("🔄 Şimdi Yeni Haberleri Tara"):
