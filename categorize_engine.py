@@ -175,10 +175,12 @@ def run_categorization_process():
             continue
             
         for tweet in tweets:
-            # 1. Mükerrer Kontrolü (İçeriğin ilk 50 karakteri üzerinden daha esnek kontrol)
-            # Sadece tam eşleşme yerine kullanıcı adı + kısa özet kontrolü
-            if tweet_exists(tweet['username'], tweet['text']):
-                print(f"⏩ {tweet['username']} için bu tweet zaten işlenmiş, atlanıyor.")
+            # 1. Ön Kategori ve Mükerrer Kontrolü (Zaten varsa AI'ya sormaya gerek yok)
+            # Haberlerin çoğu 'Ülke Gündemi' veya 'Dünya' olduğu için 
+            # önce hızlıca bir kategori tahmini yapıp veritabanına soruyoruz.
+            dummy_category = get_fallback_category(tweet['text'])
+            if tweet_exists(tweet['username'], tweet['text'], category=dummy_category):
+                print(f"⏩ {tweet['username']} için bu haber (veya benzeri) zaten sistemde var, atlanıyor.")
                 continue
 
             print(f"\n👤 GÖNDEREN: {tweet['author']} ({tweet['username']})")

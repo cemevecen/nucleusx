@@ -78,16 +78,35 @@ def save_tweet(author, username, content, category, media_url=None):
         cursor.close()
         conn.close()
 
-def tweet_exists(username, content):
-    """Tweetin zaten kaydedilip edilmediğini kontrol eder."""
+def tweet_exists(username, content, category=None):
+    """
+    Tweetin zaten kaydedilip edilmediğini kontrol eder.
+    Aynı zamanda çapraz hesap kontrolü yaparak aynı haberin 
+    başka bir hesap tarafından zaten paylaşılıp paylaşılmadığına bakar.
+    """
     conn = get_db_connection()
     cursor = conn.cursor()
-    # PostgreSQL'de içerik çok uzunsa md5 ile kontrol edebiliriz
+    
+    # 1. Birebir aynı tweet kontrolü (Aynı hesap tarafından)
     cursor.execute(
         "SELECT id FROM tweets WHERE username = %s AND content = %s LIMIT 1",
         (username, content)
     )
+    if cursor.fetchone():
+        cursor.close()
+        conn.close()
+        return True
+        
+    # 2. Çapraz Hesap Kontrolü (Aynı haber başka biri tarafından geçildi mi?)
+    # Metnin ilk 100 karakterini kullanarak son 12 saatteki haberlerle karşılaştırıyoruz
+    # (Haber başlıkları genelde benzer başlar)
+    clean_snippet = content[:100].strip()
+    cursor.execute(
+        "SELECT id FROM tweets WHERE category = %s AND content LIKE %s AND processed_at > NOW() - INTERVAL '12 hours' LIMIT 1",
+        (category, f"%{clean_snippet[:50]}%")
+    )
     exists = cursor.fetchone() is not None
+    
     cursor.close()
     conn.close()
     return exists
