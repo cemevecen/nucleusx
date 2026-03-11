@@ -86,32 +86,38 @@ st.markdown("""
         padding-top: 10px;
     }
     
-    /* YATAY SCROLL (LIGHT THEME) */
+    /* YATAY SWIPE (Scrollbar Gizli, Özel Deneyim) */
     [data-testid="stHorizontalBlock"] {
         display: flex !important;
-        overflow-x: scroll !important;
+        overflow-x: auto !important;
         flex-wrap: nowrap !important;
-        gap: 15px !important;
-        padding-bottom: 25px !important;
-        scrollbar-width: thin;
-        scrollbar-color: #2563eb #f1f5f9;
+        gap: 12px !important;
+        padding-bottom: 20px !important;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE/Edge */
+        scroll-snap-type: x mandatory; /* Swipe hissi */
     }
     
     [data-testid="stHorizontalBlock"]::-webkit-scrollbar {
-        height: 8px;
-    }
-    [data-testid="stHorizontalBlock"]::-webkit-scrollbar-thumb {
-        background: #2563eb;
-        border-radius: 10px;
-    }
-    [data-testid="stHorizontalBlock"]::-webkit-scrollbar-track {
-        background: #f1f5f9;
-        border-radius: 10px;
+        display: none !important; /* Chrome, Safari, Opera */
     }
     
     div[data-testid="column"] {
-        min-width: 320px !important; 
+        min-width: calc(19.5% - 10px) !important; /* Ekranda yaklaşık 5 tanesi tam görünür */
         flex: 0 0 auto !important;
+        scroll-snap-align: start; /* Kolon başında yapışma */
+    }
+
+    @media (max-width: 1200px) {
+        div[data-testid="column"] {
+            min-width: calc(24% - 10px) !important; /* Tablette 4 tane */
+        }
+    }
+    
+    @media (max-width: 768px) {
+        div[data-testid="column"] {
+            min-width: calc(45% - 10px) !important; /* Mobil 2 tane */
+        }
     }
 
     h1, h2, h3, p {
