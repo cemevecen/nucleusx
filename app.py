@@ -123,11 +123,19 @@ st.markdown("""
         background-color: #ffffff !important;
         border-right: 1px solid #e2e8f0;
     }
-    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p, 
-    [data-testid="stSidebar"] label, 
-    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3,
-    [data-testid="stSidebar"] .stMarkdown p {
-        color: #1e293b !important;
+    /* TÜM sidebar elemanlarını tek tek lacivert/siyah yapalım */
+    [data-testid="stSidebar"] .stMarkdown p, 
+    [data-testid="stSidebar"] .stMarkdown h1, 
+    [data-testid="stSidebar"] .stMarkdown h2, 
+    [data-testid="stSidebar"] .stMarkdown h3,
+    [data-testid="stSidebar"] span,
+    [data-testid="stSidebar"] label,
+    [data-testid="stSidebar"] div {
+        color: #0f172a !important;
+    }
+    [data-testid="stSidebar"] .stButton button {
+        background-color: #2563eb !important;
+        color: white !important;
     }
     [data-testid="stSidebar"] .stButton button {
         background-color: #2563eb !important;
@@ -258,11 +266,27 @@ for i, category in enumerate(all_categories):
             topics = cat_df.groupby('topic_tag')
             
             for tag, group in topics:
-                # Bir grup içindeki birebir aynı içerikleri veya aynı kaynakları temizle
-                # Sadece benzersiz tweetleri (içerik özeti üzerinden) göster
-                group = group.drop_duplicates(subset=['author']) # Aynı olayda her kaynaktan 1 tane göster
+                # 1. AKILLI AYRIŞTIRICI: 
+                # Eğer hashtag genel bir şeyse (#GUNDEM vb.) birleştirme yapma, ayrı ayrı göster.
+                GENERIC_TAGS = ['#GUNDEM', '#GELISME', '#HABER', '#SONDAKIKA']
                 
-                main_news = group.iloc[0]
+                if tag in GENERIC_TAGS:
+                    # Bu grup içindeki her haberi tekil kart olarak bas
+                    for _, main_news in group.iterrows():
+                        clickable_main = make_clickable(main_news['content'])
+                        media_html = f'<img src="{main_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px;">' if main_news.get('media_url') else ""
+                        
+                        column_html += f"""
+                            <div class="topic-hashtag">{tag}</div>
+                            <div class="topic-card">
+                                {media_html}
+                                <div class="tweet-content"><b>{main_news['author']}</b>: {clickable_main}</div>
+                            </div>
+                        """
+                else:
+                    # Gerçek bir konu Hub'ı oluştur (Aynı olaya dair farklı kaynaklar)
+                    group = group.drop_duplicates(subset=['author'])
+                    main_news = group.iloc[0]
                 clickable_main = make_clickable(main_news['content'])
                 media_html = f'<img src="{main_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px;">' if main_news.get('media_url') else ""
                 
@@ -345,6 +369,8 @@ if st.sidebar.button("🧹 Tüm Veritabanını Optimize Et"):
             try:
                 for log in recategorize_all_news():
                     status_text.info(log)
+                # Önbelleği temizleyelim ki yeni hashtagler hemen gelsin
+                st.cache_data.clear()
                 st.success("✨ Tüm geçmiş veriler optimize edildi!")
                 time.sleep(1)
                 st.rerun()
