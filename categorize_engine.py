@@ -66,14 +66,15 @@ def run_categorization_process():
     
     for username in target_accounts:
         print(f"\n📡 {username} hesabından tweetler çekiliyor...")
-        tweets = fetch_user_tweets(username, limit=3)
+        tweets = fetch_user_tweets(username, limit=10)
         
         if not tweets:
             print(f"🔍 {username} için yeni tweet bulunamadı veya bir hata oluştu.")
             continue
             
         for tweet in tweets:
-            # 1. Mükerrer Kontrolü (Maliyet Tasarrufu)
+            # 1. Mükerrer Kontrolü (İçeriğin ilk 50 karakteri üzerinden daha esnek kontrol)
+            # Sadece tam eşleşme yerine kullanıcı adı + kısa özet kontrolü
             if tweet_exists(tweet['username'], tweet['text']):
                 print(f"⏩ {tweet['username']} için bu tweet zaten işlenmiş, atlanıyor.")
                 continue
