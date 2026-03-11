@@ -1,4 +1,4 @@
-# NucleusX AI - Deployment Refresh: v3.0 (Full 8-Column Horizontal Layout)
+# NucleusX AI - Deployment Refresh: v5.0 (Horizontal Scroll Layout - 5 Columns)
 import streamlit as st
 import pandas as pd
 import sqlite3
@@ -88,6 +88,35 @@ st.markdown("""
         display: flex;
         gap: 15px;
         color: #60a5fa;
+    }
+    
+    /* YATAY SCROLL (KAYDIRMA) ÖZELLİĞİ */
+    [data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        overflow-x: scroll !important; /* Her zaman scroll edilebilir */
+        flex-wrap: nowrap !important;
+        gap: 15px !important;
+        padding-bottom: 25px !important;
+        scrollbar-width: thin;
+        scrollbar-color: #60a5fa rgba(255,255,255,0.1);
+    }
+    
+    [data-testid="stHorizontalBlock"]::-webkit-scrollbar {
+        height: 10px; /* Daha belirgin scrollbar */
+    }
+    [data-testid="stHorizontalBlock"]::-webkit-scrollbar-thumb {
+        background: #60a5fa;
+        border-radius: 5px;
+    }
+    [data-testid="stHorizontalBlock"]::-webkit-scrollbar-track {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    div[data-testid="column"] {
+        /* Ekranda tam 5 tane sığması için %19.2 (boşluklar dahil) */
+        min-width: calc(19.2% - 12px) !important; 
+        flex: 0 0 auto !important;
     }
     </style>
 """, unsafe_allow_html=True)
