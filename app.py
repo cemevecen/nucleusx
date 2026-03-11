@@ -31,16 +31,21 @@ st.markdown("""
         padding-bottom: 0rem !important;
         max-width: 98% !important;
     }
-    /* Light Mode Column Header */
     .column-header {
+        height: 90px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
         padding: 10px;
         border-bottom: 3px solid #2563eb;
         margin-bottom: 20px;
         text-align: center;
-        background: #ffffff;
-        border-radius: 10px 10px 0 0;
+        background: #ffffff !important;
+        border-radius: 12px;
         color: #1e293b;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid #e2e8f0;
     }
     .news-card {
         background: #ffffff !important;
