@@ -53,7 +53,7 @@ def init_db():
         
         # Mükerrer kaydı önlemek için UNIQUE index (PostgreSQL stili)
         cursor.execute('''
-            CREATE UNIQUE INDEX IF NOT EXISTS unique_tweet_idx ON tweets (username, md5(content));
+            CREATE UNIQUE INDEX IF NOT EXISTS unique_tweet_idx ON tweets (username, (md5(content)));
         ''')
         
         conn.commit()
