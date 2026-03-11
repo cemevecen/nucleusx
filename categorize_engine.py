@@ -25,35 +25,46 @@ except Exception as e:
     client = None
     print(f"❌ NucleusX Gemini Client Hatası: {e}")
 
+def get_fallback_category(text):
+    """AI hata verdiğinde anahtar kelimelerle kategori tahmini yapar."""
+    text = text.lower()
+    keywords = {
+        "Ekonomi": ["dolar", "euro", "faiz", "enflasyon", "zam", "asgari", "maai", "bakanlık", "vergi"],
+        "Finans": ["borsa", "hisse", "temettü", "kripto", "bitcoin", "altın", "btc", "eth", "yatırım"],
+        "Spor": ["gol", "maç", "skor", "futbol", "basketbol", "fenerbahçe", "galatasaray", "beşiktaş", "transfer"],
+        "Teknoloji": ["iphone", "apple", "android", "yazılım", "yapay zeka", "ai", "internet", "google", "çip"],
+        "Eğlence": ["film", "dizi", "netflix", "sinema", "oyuncu", "magazin", "ünlü"],
+        "Müzik": ["şarkı", "albüm", "konser", "klip", "single", "sanatçı", "spotify"],
+        "Dünya": ["savaş", "abd", "rusya", "israil", "gazze", "nato", "avrupa", "bm"],
+        "Ülke Gündemi": ["siyaset", "seçim", "meclis", "parti", "istifa", "belediye", "trt", "aa"]
+    }
+    
+    for cat, words in keywords.items():
+        if any(word in text for word in words):
+            return cat
+    return "Ülke Gündemi" # Varsayılan kategori
+
 def categorize_tweet(tweet_text):
     """Tweet metnini alır ve Gemini yapay zekası yardımıyla kategorize eder."""
     
     if not client:
-        print("⚠️ Gemini Client kapalı, 'Diğer' atanıyor.")
-        return "Diğer"
+        return get_fallback_category(tweet_text)
     
-    prompt = f"""
-    Sen, NucleusX gibi bir haber toplayıcı (aggregator) için çalışan baş editörsün.
-    Aşağıdeki tweet metnini oku ve onu bu 8 kategoriden sadece BİRİNE yerleştir:
-    Kategoriler: Ekonomi, Finans, Spor, Teknoloji, Eğlence, Müzik, Dünya, Ülke Gündemi
-    
-    Eğer tweet alakasızsa veya anlaşılmıyorsa "Diğer" de.
-    SADECE kategorinin adını yaz. Başka hiçbir açıklama yapma.
-    
-    Tweet: "{tweet_text}"
-    """
+    prompt = f"""Metni oku ve şu kategorilerden birini seç: Ekonomi, Finans, Spor, Teknoloji, Eğlence, Müzik, Dünya, Ülke Gündemi. Sadece kategori ismini yaz.
+    Metin: "{tweet_text}" """
     
     try:
         response = client.models.generate_content(
             model='gemini-flash-latest',
             contents=prompt
         )
-        res = response.text.strip()
-        # AI bazen köşeli parantez veya nokta ekleyebilir, temizleyelim
-        return res.replace("[", "").replace("]", "").replace(".", "").strip()
+        res = response.text.strip().replace("[", "").replace("]", "").replace(".", "")
+        if res in ["Ekonomi", "Finans", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Ülke Gündemi"]:
+            return res
+        return get_fallback_category(tweet_text)
     except Exception as e:
-        print(f"⚠️ Gemini hatası: {e}")
-        return "Bilinmeyen Kategori"
+        print(f"⚠️ Gemini hatası (Fallback kullanılıyor): {e}")
+        return get_fallback_category(tweet_text)
 
 def run_categorization_process():
     """Tüm hedef hesaplardan tweetleri çeker, kategorize eder ve kaydeder."""
