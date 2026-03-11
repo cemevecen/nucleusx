@@ -9,9 +9,6 @@ from twitter_scraper import fetch_user_tweets
 # .env dosyasındaki anahtarları yükler
 load_dotenv()
 
-# Veritabanını kullanıma hazır hale getir (Yoksa oluşturur)
-init_db()
-
 # API Anahtarları
 api_key_gemini = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
 api_key_groq = os.getenv("GROQ_API_KEY")

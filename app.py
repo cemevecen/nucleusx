@@ -265,11 +265,14 @@ for i, category in enumerate(all_categories):
             cat_df['topic_tag'] = cat_df['topic_tag'].str.strip().str.upper()
             topics = cat_df.groupby('topic_tag')
             
+            GENERIC_TAGS = ["#GELISME", "#GELİŞME", "#GUNDEM", "#GÜNDEM", "#HABER", "#DETAY", "#SONDAKIKA", "#SONDAKİKA"]
+
             for tag, group in topics:
                 # Grup içindeki birebir aynı içerikleri veya aynı kaynakları temizle
                 group = group.drop_duplicates(subset=['author']) 
                 
-                if len(group) > 1:
+                # SADECE ÖZEL BİR KONU VARSA VE BİRDEN FAZLA KAYNAKLIYSA (HUB) GÖSTER
+                if tag not in GENERIC_TAGS and len(group) > 1:
                     # BİRDEN FAZLA KAYNAKLI (HUB) GÖRÜNÜMÜ
                     main_news = group.iloc[0]
                     clickable_main = make_clickable(main_news['content'])
@@ -297,18 +300,21 @@ for i, category in enumerate(all_categories):
                         </div>
                     """
                 else:
-                    # TEKİL HABER GÖRÜNÜMÜ (Düz Kart)
-                    main_news = group.iloc[0]
-                    clickable_main = make_clickable(main_news['content'])
-                    media_html = f'<img src="{main_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px; object-fit: cover; max-height: 180px;">' if main_news.get('media_url') else ""
-                    
-                    column_html += f"""
-                        <div class="topic-hashtag">{tag}</div>
-                        <div class="news-card">
-                            {media_html}
-                            <div class="tweet-content"><b>{main_news['author']}</b>: {clickable_main}</div>
-                        </div>
-                    """
+                    # TEKİL HABER GÖRÜNÜMÜ VEYA JENERİK ETİKET (Düz Kartlar)
+                    for _, main_news in group.iterrows():
+                        clickable_main = make_clickable(main_news['content'])
+                        media_html = f'<img src="{main_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px; object-fit: cover; max-height: 180px;">' if main_news.get('media_url') else ""
+                        
+                        # Jenerik etiketi kartın tepesine bas ama birleştirmeyi boz
+                        display_tag = tag if tag in GENERIC_TAGS else tag
+                        
+                        column_html += f"""
+                            <div class="topic-hashtag" style="background: #64748b;">{display_tag}</div>
+                            <div class="news-card">
+                                {media_html}
+                                <div class="tweet-content"><b>{main_news['author']}</b>: {clickable_main}</div>
+                            </div>
+                        """
             st.markdown(column_html, unsafe_allow_html=True)
 
 # Manuel Yenileme Butonu (Test İçin Sınırsız, Ancak Kota Dostu)
