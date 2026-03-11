@@ -42,16 +42,28 @@ def fetch_user_tweets(username, limit=5):
         
         for item in timeline_data[:limit]:
             # Retweetleri atla, sadece kendi gönderilerini al
-            if "tweet" in item:
-                tweet_text = item.get("tweet", {}).get("text", "")
-            else:
-                tweet_text = item.get("text", "")
+            tweet_text = item.get("text", "")
             
+            # Media URL Çekme (Resim veya Video Kapak Resmi)
+            media_url = None
+            media_obj = item.get("media", {})
+            if isinstance(media_obj, dict):
+                # Önce resimlere bak
+                images = media_obj.get("photo", [])
+                if images and len(images) > 0:
+                    media_url = images[0].get("media_url_https")
+                # Resim yoksa videonun kapak resmine bak
+                if not media_url:
+                    videos = media_obj.get("video", [])
+                    if videos and len(videos) > 0:
+                        media_url = videos[0].get("media_url_https")
+
             if tweet_text:
                 extracted_tweets.append({
-                    "author": username.capitalize(),
+                    "author": item.get("author", {}).get("name", username.capitalize()),
                     "username": f"@{username}",
-                    "text": tweet_text
+                    "text": tweet_text,
+                    "media_url": media_url
                 })
                      
         return extracted_tweets

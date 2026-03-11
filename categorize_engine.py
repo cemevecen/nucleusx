@@ -108,8 +108,8 @@ def run_categorization_process():
             # Yapay Zeka Devreye Girer
             kategori = categorize_tweet(tweet['text'])
 
-            # Veritabanına kaydet
-            save_tweet(tweet['author'], tweet['username'], tweet['text'], kategori)
+            # Veritabanına kaydet (Resim varsa ekle)
+            save_tweet(tweet['author'], tweet['username'], tweet['text'], kategori, media_url=tweet.get('media_url'))
             yield f"✅ {tweet['username']}: [{kategori}]"
     
     print("\n" + "-" * 50)

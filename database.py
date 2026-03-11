@@ -17,6 +17,7 @@ def init_db():
             username TEXT,
             content TEXT,
             category TEXT,
+            media_url TEXT,
             processed_at TIMESTAMP
         )
     ''')
@@ -33,7 +34,7 @@ def tweet_exists(username, content):
     conn.close()
     return result is not None
 
-def save_tweet(author, username, content, category):
+def save_tweet(author, username, content, category, media_url=None):
     """Analiz edilen tweeti veritabanına kaydeder."""
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
@@ -41,9 +42,9 @@ def save_tweet(author, username, content, category):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
     cursor.execute('''
-        INSERT INTO tweets (author, username, content, category, processed_at)
-        VALUES (?, ?, ?, ?, ?)
-    ''', (author, username, content, category, now))
+        INSERT INTO tweets (author, username, content, category, media_url, processed_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ''', (author, username, content, category, media_url, now))
     
     conn.commit()
     conn.close()
@@ -54,7 +55,7 @@ def get_recent_tweets(limit=10):
     cursor = conn.cursor()
     
     cursor.execute('''
-        SELECT author, username, content, category, processed_at 
+        SELECT author, username, content, category, processed_at, media_url 
         FROM tweets 
         ORDER BY processed_at DESC 
         LIMIT ?

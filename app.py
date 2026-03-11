@@ -1,5 +1,6 @@
-# NucleusX AI - Deployment Refresh: v5.5 (Real-time Progress UI)
+# NucleusX AI - Deployment Refresh: v6.0 (Images & Clickable Links)
 import streamlit as st
+import re
 import pandas as pd
 import sqlite3
 from database import DB_NAME, init_db
@@ -121,16 +122,25 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+def make_clickable(text):
+    """Metindeki linkleri ve @kullanıcı adlarını tıklanabilir HTML yapar."""
+    # Linkleri bul ve çevir
+    text = re.sub(r'(https?://[^\s]+)', r'<a href="\1" target="_blank" style="color: #60a5fa; text-decoration: none;">\1</a>', text)
+    # @kullanıcı adlarını bul ve X.com linkine çevir
+    text = re.sub(r'@(\w+)', r'<a href="https://x.com/\1" target="_blank" style="color: #60a5fa; text-decoration: none;">@\1</a>', text)
+    return text
+
 def load_data():
     try:
         conn = sqlite3.connect(DB_NAME)
+        # media_url sütununu da çekiyoruz
         query = "SELECT * FROM tweets ORDER BY processed_at DESC"
         df = pd.read_sql_query(query, conn)
         conn.close()
         return df
     except Exception as e:
         # Tablo henüz oluşmamış veya başka bir hata varsa boş DF döndür
-        return pd.DataFrame(columns=['author', 'username', 'content', 'category', 'processed_at'])
+        return pd.DataFrame(columns=['author', 'username', 'content', 'category', 'processed_at', 'media_url'])
 
 # Kenar Çubuğu
 st.sidebar.title("🚀 NucleusX AI")
@@ -180,13 +190,24 @@ for i, category in enumerate(all_categories):
             st.info(f"Henüz {category} haberi yok.")
         else:
             for index, row in cat_df.iterrows():
+                # Tıklanabilir içerik
+                clickable_content = make_clickable(row['content'])
+                username_link = f"https://x.com/{row['username'].replace('@', '')}"
+                
+                # Resim varsa HTML hazırla
+                media_html = f'<img src="{row["media_url"]}" style="width:100%; border-radius:10px; margin-bottom:10px;">' if row.get('media_url') else ""
+                
                 st.markdown(f"""
                     <div class="news-card">
                         <div class="author-info">
-                            <span class="author-name" style="font-size: 0.8rem;">{row['author']}</span>
+                            <a href="{username_link}" target="_blank" style="text-decoration: none;">
+                                <span class="author-name" style="font-size: 0.8rem;">{row['author']}</span>
+                                <span style="color: #4b5563; font-size: 0.7rem;">{row['username']}</span>
+                            </a>
                         </div>
+                        {media_html}
                         <div class="tweet-content" style="font-size: 0.85rem;">
-                            {row['content']}
+                            {clickable_content}
                         </div>
                         <div class="card-footer" style="padding-top: 5px;">
                             <div class="time-stamp">
