@@ -14,13 +14,19 @@ DB_PORT = os.getenv("DB_PORT", "5432")
 
 def get_db_connection():
     """Supabase (PostgreSQL) veritabanına bağlanır."""
-    return psycopg2.connect(
-        host=DB_HOST,
-        database=DB_NAME,
-        user=DB_USER,
-        password=DB_PASS,
-        port=DB_PORT
-    )
+    try:
+        return psycopg2.connect(
+            host=DB_HOST,
+            database=DB_NAME,
+            user=DB_USER,
+            password=DB_PASS,
+            port=DB_PORT,
+            sslmode='require',
+            connect_timeout=10
+        )
+    except Exception as e:
+        print(f"❌ KRİTİK BAĞLANTI HATASI: {e}")
+        raise e
 
 def init_db():
     """Tabloları Supabase üzerinde hazırlar (Yoksa oluşturur)."""
