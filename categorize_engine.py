@@ -45,7 +45,7 @@ def categorize_tweet(tweet_text):
     
     try:
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-flash-latest',
             contents=prompt
         )
         res = response.text.strip()

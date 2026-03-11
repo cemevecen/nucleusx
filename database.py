@@ -22,6 +22,13 @@ def init_db():
         )
     ''')
     
+    # MİGRASYON: Eğer tablo varsa ama media_url sütunu yoksa ekle
+    try:
+        cursor.execute("SELECT media_url FROM tweets LIMIT 1")
+    except sqlite3.OperationalError:
+        print("🔧 Eski veritabanı tespit edildi, media_url sütunu ekleniyor...")
+        cursor.execute("ALTER TABLE tweets ADD COLUMN media_url TEXT")
+    
     conn.commit()
     conn.close()
 
