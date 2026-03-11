@@ -46,6 +46,7 @@ def init_db():
                 username TEXT,
                 content TEXT,
                 category TEXT,
+                topic_tag TEXT,
                 media_url TEXT,
                 processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
@@ -62,14 +63,14 @@ def init_db():
     except Exception as e:
         print(f"✅ Supabase Bağlantı Hatası: {e}")
 
-def save_tweet(author, username, content, category, media_url=None):
+def save_tweet(author, username, content, category, topic_tag="#Gundem", media_url=None):
     """Tweet verisini Supabase'e kaydeder."""
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
         cursor.execute(
-            "INSERT INTO tweets (author, username, content, category, media_url) VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO NOTHING",
-            (author, username, content, category, media_url)
+            "INSERT INTO tweets (author, username, content, category, topic_tag, media_url) VALUES (%s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING",
+            (author, username, content, category, topic_tag, media_url)
         )
         conn.commit()
     except Exception as e:

@@ -117,6 +117,44 @@ st.markdown("""
     h1, h2, h3, p {
         color: #0f172a !important;
     }
+    .topic-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 20px;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .topic-hashtag {
+        background: #2563eb;
+        color: white !important;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        display: inline-block;
+        margin-bottom: 12px;
+    }
+    .timeline-container {
+        border-left: 2px solid #e2e8f0;
+        padding-left: 15px;
+        margin-left: 10px;
+    }
+    .timeline-item {
+        position: relative;
+        margin-bottom: 15px;
+        padding-bottom: 5px;
+    }
+    .timeline-item::before {
+        content: "";
+        position: absolute;
+        left: -21px;
+        top: 5px;
+        width: 10px;
+        height: 10px;
+        background: #2563eb;
+        border-radius: 50%;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -131,7 +169,7 @@ def make_clickable(text):
 def load_data():
     try:
         conn = get_db_connection()
-        query = "SELECT author, username, content, category, processed_at, media_url FROM tweets ORDER BY processed_at DESC"
+        query = "SELECT author, username, content, category, topic_tag, processed_at, media_url FROM tweets ORDER BY processed_at DESC"
         df = pd.read_sql_query(query, conn)
         conn.close()
         # Tarih formatını pandas üzerinden düzeltelim (PostgreSQL'den gelen tipi koruyarak)
@@ -184,36 +222,47 @@ for i, category in enumerate(all_categories):
             </div>
         """, unsafe_allow_html=True)
         
-        cat_df = df[df['category'] == category].head(10)
+        cat_df = df[df['category'] == category].head(30)
         
         if cat_df.empty:
             st.info(f"Henüz {category} haberi yok.")
         else:
-            for index, row in cat_df.iterrows():
-                # Tıklanabilir içerik
-                clickable_content = make_clickable(row['content'])
-                username_link = f"https://x.com/{row['username'].replace('@', '')}"
+            # Konulara (Hashtaglere) göre grupla
+            topics = cat_df.groupby('topic_tag')
+            
+            for tag, group in topics:
+                # Hub Başlığı ve Hashtag
+                st.markdown(f'<div class="topic-hashtag">{tag}</div>', unsafe_allow_html=True)
                 
-                # Resim varsa HTML hazırla
-                media_html = f'<img src="{row["media_url"]}" style="width:100%; border-radius:10px; margin-bottom:10px;">' if row.get('media_url') else ""
+                # Grubun ilk tweeti ana haber olsun
+                main_news = group.iloc[0]
+                clickable_main = make_clickable(main_news['content'])
+                media_html = f'<img src="{main_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px;">' if main_news.get('media_url') else ""
                 
-                st.markdown(f"""<div class="news-card">
-<div class="author-info">
-<a href="{username_link}" target="_blank" style="text-decoration: none;">
-<span class="author-name" style="font-size: 0.8rem;">{row['author']}</span>
-<span style="color: #4b5563; font-size: 0.7rem;">{row['username']}</span>
-</a>
-</div>
-{media_html}
-<div class="tweet-content" style="font-size: 0.85rem;">
-{clickable_content}
-</div>
-<div class="card-footer" style="padding-top: 5px;">
-<div class="time-stamp">
-{row['processed_at'].split(' ')[1][:5]}
-</div>
-</div>
-</div>""", unsafe_allow_html=True)
+                with st.container():
+                    st.markdown(f"""
+                        <div class="topic-card">
+                            <div style="display: flex; gap: 20px;">
+                                <div style="flex: 2;">
+                                    {media_html}
+                                    <div class="tweet-content"><b>{main_news['author']}</b>: {clickable_main}</div>
+                                </div>
+                                <div style="flex: 1; border-left: 1px solid #f1f5f9; padding-left: 15px;">
+                                    <small style="color: #64748b; font-weight: bold; display: block; margin-bottom:10px;">Zaman Akışı</small>
+                                    <div class="timeline-container">
+                    """, unsafe_allow_html=True)
+                    
+                    # Diğer kaynakları zaman akışı olarak ekle
+                    for _, other_news in group.iterrows():
+                        time_val = other_news['processed_at'].split(' ')[1][:5]
+                        st.markdown(f"""
+                            <div class="timeline-item">
+                                <small style="display: block; color: #2563eb; font-weight: bold;">{time_val}</small>
+                                <small><b>{other_news['author']}</b>: {other_news['content'][:60]}...</small>
+                            </div>
+                        """, unsafe_allow_html=True)
+                    
+                    st.markdown("</div></div></div></div>", unsafe_allow_html=True)
 
 # Manuel Yenileme Butonu (Test İçin Sınırsız, Ancak Kota Dostu)
 if st.sidebar.button("🔄 Şimdi Yeni Haberleri Tara"):

@@ -58,6 +58,18 @@ def categorize_with_groq(text):
     except Exception:
         return None
 
+def generate_topic_tag(text):
+    """Metin için kısa bir hashtag (#OlayAdi) üretir."""
+    if client_gemini:
+        try:
+            prompt = f"Bu haber metni için çok kısa, tek kelimelik (hashtag stili) bir konu başlığı üret. Sadece # ile başlayan etiketi yaz. Örn: #DolarArtisi, #SecimGundemi. SADECE etiketi dönder.\nMetin: {text}"
+            response = client_gemini.models.generate_content(model='gemini-2.0-flash', contents=prompt)
+            res = response.text.strip().split()[0]
+            if res.startswith("#"): return res
+            else: return f"#{res}"
+        except: pass
+    return "#Gundem"
+
 def categorize_with_mistral(text):
     """Mistral AI üzerinden analiz yapar (3. Yedek)."""
     if not api_key_mistral:
@@ -139,6 +151,12 @@ def categorize_tweet(tweet_text):
     # 4. Aşama: Anahtar Kelime (En Son Çare)
     return get_fallback_category(tweet_text)
 
+def get_full_analysis(tweet_text):
+    """Kategori ve Konu Etiketini beraber döner."""
+    cat = categorize_tweet(tweet_text)
+    tag = generate_topic_tag(tweet_text)
+    return cat, tag
+
 def run_categorization_process():
     """Tüm hedef hesaplardan tweetleri çeker, kategorize eder ve kaydeder."""
     target_accounts = [
@@ -193,11 +211,11 @@ def run_categorization_process():
             time.sleep(4) 
 
             # Yapay Zeka Devreye Girer
-            kategori = categorize_tweet(tweet['text'])
+            kategori, konu_etiketi = get_full_analysis(tweet['text'])
 
             # Veritabanına kaydet (Resim varsa ekle)
-            save_tweet(tweet['author'], tweet['username'], tweet['text'], kategori, media_url=tweet.get('media_url'))
-            yield f"✅ {tweet['username']}: [{kategori}]"
+            save_tweet(tweet['author'], tweet['username'], tweet['text'], kategori, konu_etiketi, media_url=tweet.get('media_url'))
+            yield f"✅ {tweet['username']}: [{konu_etiketi}]"
     
     print("\n" + "-" * 50)
     print("✅ Analiz Tamamlandı! Tüm veriler NucleusX veritabanına işlendi.")
