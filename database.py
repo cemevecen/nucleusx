@@ -24,6 +24,15 @@ def init_db():
     conn.commit()
     conn.close()
 
+def tweet_exists(username, content):
+    """Aynı tweetin daha önce kaydedilip edilmediğini kontrol eder."""
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute('SELECT id FROM tweets WHERE username = ? AND content = ?', (username, content))
+    result = cursor.fetchone()
+    conn.close()
+    return result is not None
+
 def save_tweet(author, username, content, category):
     """Analiz edilen tweeti veritabanına kaydeder."""
     conn = sqlite3.connect(DB_NAME)

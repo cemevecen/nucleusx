@@ -83,6 +83,15 @@ def load_data():
 # Kenar Çubuğu
 st.sidebar.title("🚀 NucleusX AI")
 st.sidebar.markdown("---")
+
+# Güvenlik ve Kotayı Korumak İçin: Admin Girişi (Basit Bir Önlem)
+# Bu kısım botların veya rastgele kullanıcıların 'Scan' butonuna basıp kotanızı bitirmesini engeller.
+with st.sidebar.expander("🔐 Yönetici Paneli"):
+    admin_password = st.text_input("Tarama Şifresi", type="password")
+    # Örnek şifre 'nucleus123' - Bunu Streamlit Secrets üzerinden yönetmek daha güvenlidir.
+    ADMIN_PASS = st.secrets.get("ADMIN_PASSWORD", "nucleus123")
+
+st.sidebar.markdown("---")
 st.sidebar.info("Bu panel, Twitter'dan çekilen ve AI tarafından kategorize edilen haberleri gösterir.")
 
 # Filtreleme
@@ -139,15 +148,30 @@ else:
             </div>
         """, unsafe_allow_html=True)
 
-# Manuel Yenileme Butonu
+# Manuel Yenileme Butonu ve Güvenlik Sınırları
 if st.sidebar.button("🔄 Şimdi Yeni Haberleri Tara"):
-    with st.spinner("🚀 NucleusX AI Haberleri Topluyor..."):
-        try:
-            run_categorization_process()
-            st.success("Tarama tamamlandı!")
-            st.rerun()
-        except Exception as e:
-            st.error(f"Tarama sırasında bir hata oluştu: {e}")
+    # 1. Şifre Kontrolü
+    if admin_password != ADMIN_PASS:
+        st.sidebar.error("❌ Hatalı şifre! Tarama izniniz yok.")
+    else:
+        # 2. Rate Limiting (Hız Sınırı) - 5 dakikada 1 tarama
+        COOLDOWN = 5 * 60 # 5 dakika
+        current_time = time.time()
+        last_run = st.session_state.get('last_scan_time', 0)
+        
+        if (current_time - last_run) < COOLDOWN:
+            remaining = int((COOLDOWN - (current_time - last_run)) / 60)
+            st.sidebar.warning(f"⚠️ Çok hızlı tarıyorsunuz! {remaining + 1} dakika sonra tekrar deneyin.")
+        else:
+            with st.spinner("🚀 NucleusX AI Haberleri Topluyor..."):
+                try:
+                    run_categorization_process()
+                    st.session_state['last_scan_time'] = current_time
+                    st.success("✅ Tarama tamamlandı! Yeni haberler eklendi.")
+                    time.sleep(1)
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"❌ Tarama sırasında bir hata oluştu: {e}")
 
 st.sidebar.markdown("---")
 st.sidebar.write("Developed by Antigravity AI 🤖")

@@ -1,7 +1,8 @@
 import os
 from google import genai
 from dotenv import load_dotenv
-from database import init_db, save_tweet
+from database import init_db, save_tweet, tweet_exists
+import time
 from twitter_scraper import fetch_user_tweets
 
 # .env dosyasındaki anahtarları yükler
@@ -70,9 +71,18 @@ def run_categorization_process():
             continue
             
         for tweet in tweets:
+            # 1. Mükerrer Kontrolü (Maliyet Tasarrufu)
+            if tweet_exists(tweet['username'], tweet['text']):
+                print(f"⏩ {tweet['username']} için bu tweet zaten işlenmiş, atlanıyor.")
+                continue
+
             print(f"\n👤 GÖNDEREN: {tweet['author']} ({tweet['username']})")
             print(f"📝 TWEET: {tweet['text'][:100]}...") # Uzun tweetleri keserek basıyoruz
             
+            # 2. Rate Limiting (Ücretsiz Planı Korumak İçin)
+            # Gemini 1.5/2.5 Flash Free Tier sınırı dakikada 15 istektir.
+            time.sleep(2) # Her istek arasında 2 saniye bekle (max 30 RPM gibi güvenli bir sınır)
+
             # Yapay Zeka Devreye Girer
             kategori = categorize_tweet(tweet['text'])
             
