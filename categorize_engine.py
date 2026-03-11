@@ -58,8 +58,22 @@ def categorize_tweet(tweet_text):
 def run_categorization_process():
     """Tüm hedef hesaplardan tweetleri çeker, kategorize eder ve kaydeder."""
     target_accounts = [
-        "fatihaltayli", "ozgurdemirtas", "yagosabuncuoglu", "shiftdelete", 
-        "boxofficeturkey", "MuzikOnair", "trthaber", "pusholder", "ajans_muhbir"
+        # Ülke Gündemi
+        "pusholder", "ajans_muhbir",
+        # Dünya
+        "bbcturkce", "euronews_tr",
+        # Ekonomi
+        "ozgurdemirtas", "temelanaliz",
+        # Finans
+        "borsagundem", "ParaAnaliz",
+        # Teknoloji
+        "shiftdelete", "webteknoloji",
+        # Spor
+        "yagosabuncuoglu", "sporx",
+        # Eğlence
+        "boxofficeturkey", "raninitv",
+        # Müzik
+        "MuzikOnair", "PopBizde"
     ]
     
     print("-" * 50)
@@ -87,7 +101,9 @@ def run_categorization_process():
             print(f"📝 TWEET: {tweet['text'][:100]}...") # Uzun tweetleri keserek basıyoruz
             
             # 2. Rate Limiting (Ücretsiz Planı Korumak İçin)
-            time.sleep(1) 
+            # 16 hesap taranacağı için RPM (istek başına dakika) sınırına takılmamak adına 
+            # 1.5 - 2 saniye idealdir.
+            time.sleep(2) 
 
             # Yapay Zeka Devreye Girer
             kategori = categorize_tweet(tweet['text'])
