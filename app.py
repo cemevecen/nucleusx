@@ -177,30 +177,22 @@ st.markdown("<br>", unsafe_allow_html=True)
 # İkinci Satır
 render_category_columns(categories_row2)
 
-# Manuel Yenileme Butonu ve Güvenlik Sınırları
+# Manuel Yenileme Butonu (Test İçin Sınırsız, Ancak Kota Dostu)
 if st.sidebar.button("🔄 Şimdi Yeni Haberleri Tara"):
     # 1. Şifre Kontrolü
     if admin_password != ADMIN_PASS:
         st.sidebar.error("❌ Hatalı şifre! Tarama izniniz yok.")
     else:
-        # 2. Rate Limiting (Hız Sınırı) - 5 dakikada 1 tarama
-        COOLDOWN = 5 * 60 # 5 dakika
-        current_time = time.time()
-        last_run = st.session_state.get('last_scan_time', 0)
-        
-        if (current_time - last_run) < COOLDOWN:
-            remaining = int((COOLDOWN - (current_time - last_run)) / 60)
-            st.sidebar.warning(f"⚠️ Çok hızlı tarıyorsunuz! {remaining + 1} dakika sonra tekrar deneyin.")
-        else:
-            with st.spinner("🚀 NucleusX AI Haberleri Topluyor..."):
-                try:
-                    run_categorization_process()
-                    st.session_state['last_scan_time'] = current_time
-                    st.success("✅ Tarama tamamlandı! Yeni haberler eklendi.")
-                    time.sleep(1)
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"❌ Tarama sırasında bir hata oluştu: {e}")
+        # Not: Mükerrer kontrolü (database.py) ve API geciktirici (categorize_engine.py) 
+        # sayesinde sınırsız tıklanabilir, fatura oluşturmaz.
+        with st.spinner("🚀 NucleusX AI Haberleri Topluyor..."):
+            try:
+                run_categorization_process()
+                st.success("✅ Tarama tamamlandı! Mükerrer haberler otomatik atlandı.")
+                time.sleep(1)
+                st.rerun()
+            except Exception as e:
+                st.error(f"❌ Tarama sırasında bir hata oluştu: {e}")
 
 st.sidebar.markdown("---")
 st.sidebar.write("Developed by Antigravity AI 🤖")
