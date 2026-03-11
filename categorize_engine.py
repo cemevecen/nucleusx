@@ -11,19 +11,48 @@ load_dotenv()
 # Veritabanını kullanıma hazır hale getir (Yoksa oluşturur)
 init_db()
 
-# Yeni Google GenAI kütüphanesi başlatımı
-# Cloud ortamında (Streamlit) secrets'tan okumak için düzenlendi
-api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+# API Anahtarları
+api_key_gemini = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+api_key_groq = os.getenv("GROQ_API_KEY")
 
+# Gemini Client
 try:
-    if api_key:
-        client = genai.Client(api_key=api_key)
+    if api_key_gemini:
+        client_gemini = genai.Client(api_key=api_key_gemini)
     else:
-        client = None
-        print("⚠️ Uyarı: GEMINI_API_KEY bulunamadı.")
-except Exception as e:
-    client = None
-    print(f"❌ NucleusX Gemini Client Hatası: {e}")
+        client_gemini = None
+except Exception:
+    client_gemini = None
+
+def categorize_with_groq(text):
+    """Gemini dursa bile Groq üzerinden Llama-3 ile analiz yapar (Ücretsiz ve Hızlı)."""
+    if not api_key_groq:
+        return None
+        
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key_groq}",
+        "Content-Type": "application/json"
+    }
+    
+    prompt = f"Categorize this news/tweet into ONE of these: Ekonomi, Finans, Spor, Teknoloji, Eğlence, Müzik, Dünya, Ülke Gündemi. Respond with ONLY the category name.\n\nText: {text}"
+    
+    data = {
+        "model": "llama-3.3-70b-versatile",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0
+    }
+    
+    try:
+        import requests
+        response = requests.post(url, headers=headers, json=data, timeout=5)
+        if response.status_code == 200:
+            res = response.json()['choices'][0]['message']['content'].strip().replace(".", "")
+            if res in ["Ekonomi", "Finans", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Ülke Gündemi"]:
+                return res
+        return None
+    except Exception:
+        return None
 
 def get_fallback_category(text):
     """AI hata verdiğinde anahtar kelimelerle kategori tahmini yapar."""
@@ -45,26 +74,32 @@ def get_fallback_category(text):
     return "Ülke Gündemi" # Varsayılan kategori
 
 def categorize_tweet(tweet_text):
-    """Tweet metnini alır ve Gemini yapay zekası yardımıyla kategorize eder."""
+    """
+    Kategori belirleme zinciri: 
+    1. Gemini (Ana) -> 2. Groq (Yedek LLM) -> 3. Anahtar Kelime (Güvenli Liman)
+    """
     
-    if not client:
-        return get_fallback_category(tweet_text)
-    
-    prompt = f"""Metni oku ve şu kategorilerden birini seç: Ekonomi, Finans, Spor, Teknoloji, Eğlence, Müzik, Dünya, Ülke Gündemi. Sadece kategori ismini yaz.
-    Metin: "{tweet_text}" """
-    
-    try:
-        response = client.models.generate_content(
-            model='gemini-flash-latest',
-            contents=prompt
-        )
-        res = response.text.strip().replace("[", "").replace("]", "").replace(".", "")
-        if res in ["Ekonomi", "Finans", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Ülke Gündemi"]:
-            return res
-        return get_fallback_category(tweet_text)
-    except Exception as e:
-        print(f"⚠️ Gemini hatası (Fallback kullanılıyor): {e}")
-        return get_fallback_category(tweet_text)
+    # 1. Aşama: Gemini Dene
+    if client_gemini:
+        try:
+            prompt = f"Metni şu kategorilerden birine yerleştir: Ekonomi, Finans, Spor, Teknoloji, Eğlence, Müzik, Dünya, Ülke Gündemi. SADECE kategorinin ismini yaz.\nMetin: {tweet_text}"
+            response = client_gemini.models.generate_content(
+                model='gemini-flash-latest',
+                contents=prompt
+            )
+            res = response.text.strip().replace("[", "").replace("]", "").replace(".", "")
+            if res in ["Ekonomi", "Finans", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Ülke Gündemi"]:
+                return res
+        except Exception:
+            pass # Hata durumunda bir sonraki aşamaya geç
+
+    # 2. Aşama: Groq (Llama-3) Dene
+    res_groq = categorize_with_groq(tweet_text)
+    if res_groq:
+        return res_groq
+        
+    # 3. Aşama: Anahtar Kelime (Fallback)
+    return get_fallback_category(tweet_text)
 
 def run_categorization_process():
     """Tüm hedef hesaplardan tweetleri çeker, kategorize eder ve kaydeder."""
