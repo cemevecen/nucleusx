@@ -110,6 +110,8 @@ with c3:
 with c4:
     st.metric("Eğlence", stats.get("Eğlence", 0))
 
+st.markdown(f"**Not:** Diğer kategorisinde {stats.get('Diğer', 0) + stats.get('Bilinmeyen Kategori', 0)} haber bulunuyor.")
+
 st.markdown("---")
 
 # Haber Listesi
@@ -117,7 +119,10 @@ if df.empty:
     st.warning("Henüz veritabanında haber yok. Lütfen tarayıcıyı çalıştırın.")
 else:
     for index, row in df.iterrows():
-        cat_class = f"cat-{row['category'].lower().replace('ç', 'c').replace('ö', 'o').replace('ü', 'u').replace('ğ', 'g').replace('ı', 'i')}"
+        # Kategori ismini CSS class uygun hale getir (Boşluk/Özel Karakter Temizliği)
+        raw_cat = str(row['category'])
+        clean_cat = raw_cat.lower().replace('ç', 'c').replace('ö', 'o').replace('ü', 'u').replace('ğ', 'g').replace('ı', 'i').replace(' ', '-')
+        cat_class = f"cat-{clean_cat}"
         
         st.markdown(f"""
             <div class="news-card">

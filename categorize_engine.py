@@ -22,13 +22,14 @@ try:
         print("⚠️ Uyarı: GEMINI_API_KEY bulunamadı.")
 except Exception as e:
     client = None
-    print(f"❌ Gemini Client Hatası: {e}")
+    print(f"❌ NucleusX Gemini Client Hatası: {e}")
 
 def categorize_tweet(tweet_text):
     """Tweet metnini alır ve Gemini yapay zekası yardımıyla kategorize eder."""
     
     if not client:
-        return "Bilinmeyen Kategori (API Hatası)"
+        print("⚠️ Gemini Client kapalı, 'Diğer' atanıyor.")
+        return "Diğer"
     
     prompt = f"""
     Sen, NucleusX gibi bir haber toplayıcı (aggregator) için çalışan baş editörsün.
@@ -43,7 +44,7 @@ def categorize_tweet(tweet_text):
     
     try:
         response = client.models.generate_content(
-            model='gemini-1.5-flash',
+            model='gemini-2.5-flash',
             contents=prompt
         )
         return response.text.strip()
@@ -84,4 +85,5 @@ def run_categorization_process():
     print("✅ Analiz Tamamlandı! Tüm veriler NucleusX veritabanına işlendi.")
 
 if __name__ == "__main__":
+    init_db() # Ensure DB is ready
     run_categorization_process()

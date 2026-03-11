@@ -5,6 +5,7 @@ DB_NAME = "nucleusx.db"
 
 def init_db():
     """Veritabanını ve gerekli tabloları oluşturur."""
+    print(f"🗄️ Veritabanı kontrol ediliyor: {DB_NAME}")
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     
