@@ -10,7 +10,7 @@ from categorize_engine import run_categorization_process
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V25.0 LUXURY",
+    page_title="NucleusX AI V26.0 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -72,41 +72,70 @@ st.markdown("""
         [data-testid="column"] { flex: 0 0 100% !important; min-width: 100% !important; margin-bottom: 20px; }
     }
 
-    /* =======================================================
-       PREMIUM LUXURY DESIGN (Scoopnest Inspired)
-       ======================================================= */
-    .stApp { background-color: #ffffff !important; }
+    /* NAV TABS: SCROLLABLE BAR */
+    .nav-tabs-wrapper {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        gap: 10px !important;
+        padding: 5px 40px 15px 40px !important;
+        background: #ffffff;
+        border-bottom: 1px solid #f1f5f9;
+        margin-left: -5rem; margin-right: -5rem;
+        margin-top: -20px;
+        margin-bottom: 25px;
+        scrollbar-width: none; /* Hide for clean look */
+    }
+    .nav-tabs-wrapper::-webkit-scrollbar { display: none; }
     
-    /* DASHBOARD GRID: NUCLEAR FIX V25.0 */
+    .nav-tab-item {
+        flex: 0 0 auto !important;
+        padding: 8px 20px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        color: #1e3a8a;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    .nav-tab-item:hover { background: #1e3a8a; color: #ffffff; }
+    .nav-tab-item.active { background: #1e3a8a; color: #ffffff; border-color: #1e3a8a; }
+
+    /* DASHBOARD GRID: ROCK SOLID V26.0 */
     .dashboard-wrapper {
         display: flex !important;
         flex-wrap: nowrap !important;
         overflow-x: auto !important;
         overflow-y: hidden !important;
-        gap: 20px !important;
-        padding: 10px 0 30px 0 !important;
+        gap: 25px !important;
+        padding: 10px 0 40px 0 !important;
         width: 100% !important;
         scroll-behavior: smooth;
-        -webkit-overflow-scrolling: touch;
     }
-    .dashboard-wrapper::-webkit-scrollbar { height: 6px; }
-    .dashboard-wrapper::-webkit-scrollbar-track { background: #f8fafc; }
-    .dashboard-wrapper::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-    .dashboard-wrapper::-webkit-scrollbar-thumb:hover { background: #6366f1; }
-
+    
     .category-column { 
-        flex: 0 0 calc(25% - 15px) !important; 
-        min-width: calc(25% - 15px) !important;
-        max-width: calc(25% - 15px) !important;
+        flex: 0 0 350px !important; /* Fixed width to prevent squeezing */
+        min-width: 350px !important;
+        max-width: 350px !important;
         flex-shrink: 0 !important;
     }
+    
+    /* Scrollbar styling for dashboard */
+    .dashboard-wrapper::-webkit-scrollbar { height: 8px; }
+    .dashboard-wrapper::-webkit-scrollbar-track { background: #f8fafc; border-radius: 10px; }
+    .dashboard-wrapper::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; border: 2px solid #f8fafc; }
+    .dashboard-wrapper::-webkit-scrollbar-thumb:hover { background: #64748b; }
 
-    @media (max-width: 1200px) {
-        .category-column { flex: 0 0 calc(50% - 15px) !important; min-width: calc(50% - 15px) !important; }
+    @media (max-width: 1400px) {
+        .category-column { flex: 0 0 320px !important; min-width: 320px !important; }
     }
     @media (max-width: 768px) {
-        .category-column { flex: 0 0 100% !important; min-width: 100% !important; }
-        .dashboard-wrapper { flex-direction: column !important; overflow-x: hidden !important; }
+        .category-column { flex: 0 0 85vw !important; min-width: 85vw !important; }
     }
     
     /* TOP NAV: PRO & CLEAN */
@@ -147,7 +176,7 @@ st.markdown("""
     .card-title a { 
         color: #000000 !important; 
         font-weight: 800; 
-        font-size: 1.05rem !important; 
+        font-size: 0.80rem !important; 
         line-height: 1.35; 
         text-decoration: none;
         display: -webkit-box;
@@ -322,7 +351,7 @@ with st.sidebar:
 # Top Nav
 st.markdown(f"""
     <div class="top-nav">
-        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v25.0</small></div>
+        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v26.0</small></div>
         <div style="display:flex; gap:15px; align-items:center;">
             <div style="width:10px; height:10px; background:#22c55e; border-radius:50%; box-shadow:0 0 10px #22c55e;"></div>
         </div>
@@ -332,6 +361,18 @@ st.markdown(f"""
 # Main Navigation Router
 current_page = st.session_state.get('current_page', 'Dashboard')
 selected_tag = st.session_state.get('selected_tag')
+
+# V26.0 - NEW SCROLLABLE TAB NAVIGATION
+nav_tabs_html = '<div class="nav-tabs-wrapper">'
+for item in nav_items:
+    active_class = "active" if current_page == item["name"] else ""
+    # In a real app we'd need a multi-page or query param sync, 
+    # but for this simulation we use simple labels as triggers via session state bridge.
+    # Note: Streamlit buttons inside HTML are tricky, so we use the sidebar as the source of truth
+    # and these simply mirror the status for visual feedback.
+    nav_tabs_html += f'<div class="nav-tab-item {active_class}">{item["label"]}</div>'
+nav_tabs_html += '</div>'
+st.markdown(nav_tabs_html, unsafe_allow_html=True)
 
 if selected_tag:
     # Tag View
@@ -401,4 +442,4 @@ if current_page == "Dashboard":
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX V25.0 Ultimate - Developed by Antigravity AI")
+st.sidebar.caption("NucleusX V26.0 Ultimate - Developed by Antigravity AI")
