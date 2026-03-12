@@ -206,21 +206,30 @@ def make_clickable(text):
     return text
 
 # Veritabanı verisini önbelleğe alalım (Hız İçin Kritik!)
-# ttl=300 (5 dakika) boyunca aynı veriyi sunar, sonra yeniler.
-@st.cache_data(ttl=300)
+# ttl=600 (10 dakika) boyunca aynı veriyi sunar.
+@st.cache_data(ttl=600)
 def load_data():
     try:
         conn = get_db_connection()
-        # Sadece son 3 gündeki haberleri çekelim
-        query = "SELECT author, username, content, category, topic_tag, processed_at, media_url, tweet_url FROM tweets WHERE processed_at > NOW() - INTERVAL '3 days' ORDER BY processed_at DESC"
+        # Sadece son 48 saatteki haberleri çekelim (3 gün verisi yavaşlatabilir)
+        # Hız için sadece gerekli sütunları çekiyoruz
+        query = """
+            SELECT author, content, category, topic_tag, processed_at, media_url, tweet_url 
+            FROM tweets 
+            WHERE processed_at > NOW() - INTERVAL '48 hours' 
+            ORDER BY processed_at DESC 
+            LIMIT 200
+        """
         df = pd.read_sql_query(query, conn)
         conn.close()
+        
         if not df.empty:
-            df['processed_at'] = df['processed_at'].astype(str)
+            df['processed_at'] = pd.to_datetime(df['processed_at']).dt.strftime('%H:%M')
+            df['topic_tag'] = df['topic_tag'].fillna('HABER').str.strip().str.upper()
         return df
     except Exception as e:
         st.error(f"Veri yüklenirken hata oluştu: {e}")
-        return pd.DataFrame(columns=['author', 'username', 'content', 'category', 'topic_tag', 'processed_at', 'media_url', 'tweet_url'])
+        return pd.DataFrame()
 
 # Kenar Çubuğu
 st.sidebar.title("🚀 NucleusX AI")
@@ -240,7 +249,7 @@ st.sidebar.markdown("---")
 df = load_data()
 
 # LOG BİLGİSİ
-print("--- NucleusX UI V9.0 Başlatıldı ---")
+print("--- NucleusX UI V9.1 Speed Boost Devrede ---")
 
 # Oturum Durumu (Navigasyon ve Filtreler İçin)
 if 'current_page' not in st.session_state:
@@ -423,58 +432,54 @@ else:
     cols = st.columns(len(visible_categories))
 
     for i, category in enumerate(visible_categories):
+        cat_df = df[df['category'] == category].head(15) # Dashboard başı 15 haber yeterli
+        
         with cols[i]:
             # Kolon Başlığı
-            count = len(df[df["category"] == category])
-            st.markdown(f'<div class="column-header"><h3 style="font-size: 0.9rem;">{category}</h3><small>{count} Haber</small></div>', unsafe_allow_html=True)
-        
-        cat_df = df[df['category'] == category].head(30)
-        
-        if cat_df.empty:
-            st.info(f"Henüz {category} haberi yok.")
-        else:
-            # Tüm kolon içeriğini tek bir HTML bloğunda toplayalım (Kayma ve bozulmayı önler)
+            st.markdown(f'<div class="column-header"><h3 style="font-size: 0.9rem;">{category}</h3><small>{len(cat_df)} Önemli Gelişme</small></div>', unsafe_allow_html=True)
+            
+            # Kolon İçeriği
             column_html = ""
-            cat_df['topic_tag'] = cat_df['topic_tag'].str.strip().str.upper()
             topics = cat_df.groupby('topic_tag')
             
             for tag, group in topics:
-                group = group.sort_values('processed_at', ascending=False).drop_duplicates(subset=['author']) 
+                # Deduplication: Aynı başlığı paylaşanları tek kartta göster
+                display_news = group.iloc[0]
+                content = display_news['content']
                 
-                # Jenerik ise veya değilse aynı kart yapısını kullan (Birebir Mockup)
-                for _, row in group.iterrows():
-                    # Sadece ilk haberi göster (Duplike deduplication kuralı)
-                    # Eğer jenerik değilse deduplication uygula
-                    if tag not in GENERIC_TAG_LIST:
-                        display_news = group.iloc[0]
-                        # Haber başlığını içerikten türet (İlk cümle veya ilk 10 kelime)
-                        content = display_news['content']
-                        news_title_raw = content.split('.')[0][:80] if '.' in content else content[:80]
-                        news_title = make_clickable(news_title_raw + "...") if len(content) > 80 else make_clickable(content)
-                        
-                        news_desc_raw = content[len(news_title_raw):][:150]
-                        news_desc = make_clickable(news_desc_raw + "...") if len(content[len(news_title_raw):]) > 150 else make_clickable(content[len(news_title_raw):])
-                        
-                        media_html = f'<img src="{display_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px; object-fit:cover; height:180px; background:#f1f5f9;">' if display_news.get('media_url') else ""
-                        count_info = f'<div style="color:#2563eb; font-weight:bold; margin-top:8px; font-size:0.8rem;">✨ {len(group)} farklı kaynak bu konuyu geçti.</div>' if len(group) > 1 else ""
-                        
-                        # Başlığa Tıklandığında Twite Gitme Özelliği
-                        final_title = f'<a href="{display_news["tweet_url"]}" target="_blank">{news_title}</a>' if display_news.get('tweet_url') else news_title
-                        
-                        column_html += f'<div class="news-card">{media_html}<div class="card-title">{final_title}</div><div style="font-size:0.85rem; color:#475569; line-height:1.4;">{news_desc}</div><div class="card-meta"><span>🔹 {display_news["author"]}</span><span>🕒 {display_news["processed_at"].split(" ")[1][:5]}</span><span>📖 5 Dak.</span><span style="color:#2563eb;">{tag}</span></div>{count_info}</div>'
-                        break # Grup için sadece bir kart bas
-                    else:
-                        # Jenerik taglerde her haberi bas
-                        row_title_raw = row['content'].split('.')[0][:80] if '.' in row['content'] else row['content'][:80]
-                        row_title = make_clickable(row_title_raw + "...")
-                        
-                        # Başlığa Tıklandığında Twite Gitme Özelliği
-                        final_title = f'<a href="{row["tweet_url"]}" target="_blank">{row_title}</a>' if row.get('tweet_url') else row_title
-                        
-                        media_html = f'<img src="{row["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px; object-fit:cover; height:180px; background:#f1f5f9;">' if row.get('media_url') else ""
-                        column_html += f'<div class="news-card">{media_html}<div class="card-title">{final_title}</div><div class="card-meta"><span>🔹 {row["author"]}</span><span>🕒 {row["processed_at"].split(" ")[1][:5]}</span><span>📖 5 Dak.</span></div></div>'
+                # Başlık ve açıklama üretimi (Optimize edilmiş)
+                if '.' in content:
+                    news_title_raw = content.split('.')[0][:70]
+                    news_desc_raw = content[len(news_title_raw)+1:200]
+                else:
+                    news_title_raw = content[:70]
+                    news_desc_raw = content[70:200]
+                
+                news_title = news_title_raw + "..." if len(content) > 70 else content
+                news_desc = news_desc_raw + "..." if len(content) > 200 else news_desc_raw
+                
+                media_html = f'<img src="{display_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:10px; object-fit:cover; height:160px; background:#f1f5f9;">' if display_news.get('media_url') else ""
+                
+                # Tıklanabilir linkler (Hız için sadece title'a link veriyoruz)
+                final_title = f'<a href="{display_news["tweet_url"]}" target="_blank" style="text-decoration:none; color:#1e40af;">{news_title}</a>' if display_news.get('tweet_url') else news_title
+                
+                extra_info = f'<div style="color:#2563eb; font-size:0.75rem; margin-top:5px; font-weight:600;">✨ {len(group)} Kaynak</div>' if len(group) > 1 else ""
+                
+                column_html += f"""
+                <div class="news-card">
+                    {media_html}
+                    <div class="card-title" style="font-size:0.9rem; margin-bottom:5px;">{final_title}</div>
+                    <div style="font-size:0.8rem; color:#475569; line-height:1.4;">{news_desc}</div>
+                    <div class="card-meta">
+                        <span>👤 {display_news["author"][:15]}</span>
+                        <span>🕒 {display_news["processed_at"]}</span>
+                        <span style="color:#2563eb; font-weight:700;">#{tag}</span>
+                    </div>
+                    {extra_info}
+                </div>
+                """
             
-            st.markdown(column_html.strip(), unsafe_allow_html=True)
+            st.markdown(column_html, unsafe_allow_html=True)
 
 # Manuel Yenileme Butonu (Test İçin Sınırsız, Ancak Kota Dostu)
 if st.sidebar.button("🔄 Şimdi Yeni Haberleri Tara"):
@@ -535,5 +540,5 @@ if st.sidebar.button("🧹 Tüm Veritabanını Optimize Et"):
                 st.error(f"❌ Optimizasyon hatası: {e}")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("🚀 **NucleusX Engine v9.0**")
+st.sidebar.caption("🚀 **NucleusX Engine v9.1 Speed Boost**")
 st.sidebar.caption("Developed by Antigravity AI 🤖")
