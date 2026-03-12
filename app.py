@@ -132,27 +132,29 @@ st.markdown("""
     }
 
     .column-header {
-        height: 65px;
-        background: white;
-        border-radius: 12px;
+        height: 60px;
+        background: #ffffff;
+        border-radius: 12px 12px 0 0;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        padding: 5px 10px;
-        margin-bottom: 20px;
-        border: 1px solid #e2e8f0;
+        padding: 5px;
+        border-bottom: 2px solid #2563eb;
         color: #1e293b;
+        margin-bottom: 15px;
     }
     .column-header h3 {
         margin: 0 !important;
-        font-size: 0.9rem !important;
+        font-size: 0.85rem !important;
         font-weight: 700;
         white-space: nowrap;
+        color: #1e40af;
     }
     .column-header small {
-        font-size: 0.7rem;
-        opacity: 0.7;
+        font-size: 0.65rem;
+        opacity: 0.6;
+        color: #64748b;
     }
 
     /* Layout Reset */
@@ -336,28 +338,35 @@ for i, category in enumerate(all_categories):
             
             for tag, group in topics:
                 group = group.sort_values('processed_at', ascending=False).drop_duplicates(subset=['author']) 
-                main_news = group.iloc[0]
                 
-                # Linkleri bozmadan başlık/içerik ayır (İlk ":" ama http: değilse)
-                content = main_news['content']
-                split_match = re.search(r'[^h]:\s', content) # Basit bir 'özne: içerik' kontrolü
-                if split_match:
-                    split_idx = split_match.start() + 1
-                    title_part = content[:split_idx].strip()
-                    desc_part = content[split_idx+1:].strip()
+                # JENERİK ETİKET İSE: Tüm haberleri tek tek dök
+                if tag in GENERIC_TAG_LIST:
+                    for _, row in group.iterrows():
+                        clickable_text = make_clickable(row['content'])
+                        media_html = f'<img src="{row["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:10px; object-fit:cover; height:180px; background:#f1f5f9;">' if row.get('media_url') else ""
+                        
+                        column_html += f'<div class="news-card">{media_html}<div class="card-title">{row["author"]}</div><div style="font-size:0.9rem; color:#475569; margin-top:5px; line-height:1.4;">{clickable_text}</div><div class="card-meta"><span>🕒 {row["processed_at"].split(" ")[1][:5]}</span><span style="color:#2563eb;">{tag}</span></div></div>'
+                
+                # ÖZEL ETİKET İSE (Konu Hub): Sadece ilkini göster, diğerlerini say
                 else:
-                    title_part = main_news['author']
-                    desc_part = content
-                
-                # Linkleri tıklanabilir yap
-                desc_clickable = make_clickable(desc_part)
-                
-                media_html = f'<img src="{main_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px; object-fit:cover; height:180px; background:#f1f5f9;">' if main_news.get('media_url') else ""
-                
-                count_info = f'<div style="color:#2563eb; font-weight:bold; margin-top:8px; font-size:0.8rem;">✨ {len(group)} farklı kaynak paylaştı.</div>' if len(group) > 1 else ""
-                
-                card_html = f'<div class="news-card">{media_html}<div class="card-title">{title_part}</div><div style="font-size:0.9rem; color:#475569; margin-top:5px; line-height:1.4;">{desc_clickable[:250]}</div><div class="card-meta"><span>🔹 {main_news["author"]}</span><span>🕒 {main_news["processed_at"].split(" ")[1][:5]}</span><span>📖 5 Dak.</span><span style="color:#2563eb;">{tag}</span></div>{count_info}</div>'
-                column_html += card_html
+                    main_news = group.iloc[0]
+                    content = main_news['content']
+                    split_match = re.search(r'[^h]:\s', content)
+                    if split_match:
+                        split_idx = split_match.start() + 1
+                        title_part = content[:split_idx].strip()
+                        desc_part = content[split_idx+1:].strip()
+                    else:
+                        title_part = main_news['author']
+                        desc_part = content
+                    
+                    desc_clickable = make_clickable(desc_part)
+                    media_html = f'<img src="{main_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px; object-fit:cover; height:180px; background:#f1f5f9;">' if main_news.get('media_url') else ""
+                    
+                    count_info = f'<div style="color:#2563eb; font-weight:bold; margin-top:8px; font-size:0.8rem;">✨ {len(group)} farklı kaynak bu konuyu geçti.</div>' if len(group) > 1 else ""
+                    
+                    column_html += f'<div class="news-card" style="border-left: 4px solid #2563eb;">{media_html}<div class="card-title">{title_part}</div><div style="font-size:0.9rem; color:#475569; margin-top:5px; line-height:1.4;">{desc_clickable[:250]}</div><div class="card-meta"><span>🔹 {main_news["author"]}</span><span>🕒 {main_news["processed_at"].split(" ")[1][:5]}</span><span>📖 5 Dak.</span><span style="color:#2563eb;">{tag}</span></div>{count_info}</div>'
+            
             st.markdown(column_html.strip(), unsafe_allow_html=True)
 
 # Manuel Yenileme Butonu (Test İçin Sınırsız, Ancak Kota Dostu)
