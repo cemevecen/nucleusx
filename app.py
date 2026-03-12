@@ -7,8 +7,8 @@ from categorize_engine import run_categorization_process
 
 # Sayfa Konfigürasyonu
 st.set_page_config(
-    page_title="NucleusX AI V16.0 TITAN",
-    page_icon=None,
+    page_title="NucleusX AI V17.0 TITAN",
+    page_icon="⚛️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -35,14 +35,14 @@ st.markdown("""
         align-items: center;
         padding: 15px 40px;
         background: white;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 2px solid #2563eb;
         position: sticky;
         top: 0;
-        z-index: 1000;
-        margin-bottom: 25px;
+        z-index: 9999;
+        margin-bottom: 30px;
         margin-left: -5rem;
         margin-right: -5rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
     .logo-text {
         font-weight: 800;
@@ -142,19 +142,21 @@ st.markdown("""
     }
 
     /* Dashboard Grid - HORIZONTAL SCROLL SCOPED */
-    .main-grid > div[data-testid="stHorizontalBlock"] {
+    .main-grid [data-testid="stHorizontalBlock"] {
         display: flex !important;
+        flex-direction: row !important;
         overflow-x: auto !important;
-        gap: 20px !important;
-        padding-bottom: 40px !important;
-        scrollbar-width: thin !important;
-        scrollbar-color: #cbd5e1 transparent !important;
+        flex-wrap: nowrap !important;
+        gap: 25px !important;
+        padding: 20px 10px !important;
+        background: #f8fafc;
+        border-radius: 15px;
     }
     
-    .main-grid div[data-testid="column"] {
+    .main-grid [data-testid="column"] {
         flex: 0 0 320px !important;
         min-width: 320px !important;
-        flex-shrink: 0 !important;
+        max-width: 320px !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -211,12 +213,12 @@ st.sidebar.markdown("---")
 df = load_data()
 
 # LOG BİLGİSİ
-print("--- !!! TITAN V16.3 DEPLOY !!! ---")
+print("--- !!! ULTIMATE TITAN V17.0 DEPLOY !!! ---")
 
 # Canlıda cache'i temizle
-if 'init_v16_3' not in st.session_state:
+if 'init_v17_0' not in st.session_state:
     st.cache_data.clear()
-    st.session_state.init_v16_3 = True
+    st.session_state.init_v17_0 = True
 
 # Oturum Durumu (Navigasyon ve Filtreler İçin)
 if 'current_page' not in st.session_state:
@@ -254,11 +256,11 @@ st.markdown("""
 st.markdown("""
     <div class="top-nav">
         <div class="logo-text">
-            NUCLEUS <b>X</b> <span style="font-size: 0.8rem; opacity: 0.5;">v16.3 TITAN</span>
+            ⚛️ NUCLEUS <b>X</b> <span style="font-size: 0.8rem; opacity: 0.5;">v17.0 TITAN</span>
         </div>
         <div class="search-box"> Haberlerde ara...</div>
         <div style="display: flex; gap: 20px; align-items: center;">
-            <span style="background: #f1f5f9; padding: 8px; border-radius: 50%;">👤</span>
+            <span style="background: #2563eb; color: white; padding: 10px; border-radius: 50%; font-weight: bold;">👤</span>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -532,5 +534,5 @@ if st.sidebar.button("🧹 Tüm Veritabanını Optimize Et"):
                 st.error(f"❌ Optimizasyon hatası: {e}")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("🚀 **NucleusX Engine v16.2 Titan**")
+st.sidebar.caption("🚀 **NucleusX Engine v17.0 Titan Final**")
 st.sidebar.caption("Developed by Antigravity AI 🤖")
