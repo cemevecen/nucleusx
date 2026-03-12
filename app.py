@@ -7,8 +7,8 @@ from categorize_engine import run_categorization_process
 
 # Sayfa Konfigürasyonu
 st.set_page_config(
-    page_title="NucleusX AI | Haber Havuzu",
-    page_icon="🚀",
+    page_title="NucleusX AI V10.0 | Canlı",
+    page_icon="⚛️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -254,7 +254,12 @@ st.sidebar.markdown("---")
 df = load_data()
 
 # LOG BİLGİSİ
-print("--- NucleusX UI V9.2 FORCE REFRESH ---")
+print("--- !!! NUCLEAR DEPLOY V10.0 !!! ---")
+
+# Canlıda cache'i bir kez temizlemesi için (Opsiyonel ama etkili)
+if 'init_v10' not in st.session_state:
+    st.cache_data.clear()
+    st.session_state.init_v10 = True
 
 # Oturum Durumu (Navigasyon ve Filtreler İçin)
 if 'current_page' not in st.session_state:
@@ -545,5 +550,5 @@ if st.sidebar.button("🧹 Tüm Veritabanını Optimize Et"):
                 st.error(f"❌ Optimizasyon hatası: {e}")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("🚀 **NucleusX Engine v9.2**")
+st.sidebar.caption("🚀 **NucleusX Engine v10.0 Platinum**")
 st.sidebar.caption("Developed by Antigravity AI 🤖")
