@@ -10,7 +10,7 @@ from categorize_engine import run_categorization_process
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V28.0 LUXURY",
+    page_title="NucleusX AI V29.0 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -92,19 +92,42 @@ st.markdown("""
     .nav-tab-item {
         flex: 0 0 auto !important;
         padding: 8px 20px;
-        background: #f8fafc;
+        background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 20px;
-        color: #1e3a8a;
+        color: #475569;
         font-weight: 700;
         font-size: 0.85rem;
         text-decoration: none;
         white-space: nowrap;
-        transition: all 0.2s;
+        transition: all 0.25s;
         cursor: pointer;
     }
-    .nav-tab-item:hover { background: #1e3a8a; color: #ffffff; }
-    .nav-tab-item.active { background: #1e3a8a; color: #ffffff; border-color: #1e3a8a; }
+    
+    /* V29.0 Coordinated Tab Colors */
+    .nav-tab-item.tab-turkiye { color: #fca5a5; border-color: #fca5a5; }
+    .nav-tab-item.tab-turkiye.active, .nav-tab-item.tab-turkiye:hover { background: #fca5a5 !important; color: #ffffff !important; }
+    
+    .nav-tab-item.tab-ekonomi { color: #fde047; border-color: #fde047; }
+    .nav-tab-item.tab-ekonomi.active, .nav-tab-item.tab-ekonomi:hover { background: #fde047 !important; color: #78350f !important; }
+    
+    .nav-tab-item.tab-spor { color: #86efac; border-color: #86efac; }
+    .nav-tab-item.tab-spor.active, .nav-tab-item.tab-spor:hover { background: #86efac !important; color: #14532d !important; }
+    
+    .nav-tab-item.tab-muzik { color: #c4b5fd; border-color: #c4b5fd; }
+    .nav-tab-item.tab-muzik.active, .nav-tab-item.tab-muzik:hover { background: #c4b5fd !important; color: #ffffff !important; }
+    
+    .nav-tab-item.tab-teknoloji { color: #93c5fd; border-color: #93c5fd; }
+    .nav-tab-item.tab-teknoloji.active, .nav-tab-item.tab-teknoloji:hover { background: #93c5fd !important; color: #ffffff !important; }
+    
+    .nav-tab-item.tab-dunya { color: #a8a29e; border-color: #d6d3d1; }
+    .nav-tab-item.tab-dunya.active, .nav-tab-item.tab-dunya:hover { background: #d6d3d1 !important; color: #ffffff !important; }
+    
+    .nav-tab-item.tab-eglence { color: #fdba74; border-color: #fdba74; }
+    .nav-tab-item.tab-eglence.active, .nav-tab-item.tab-eglence:hover { background: #fdba74 !important; color: #7c2d12 !important; }
+    
+    /* Dashboard button fallback */
+    .nav-tab-item.tab-dashboard.active { background: #1e3a8a; color: #ffffff; border-color: #1e3a8a; }
 
     /* DASHBOARD GRID: ROCK SOLID V26.0 */
     .dashboard-wrapper {
@@ -365,7 +388,7 @@ with st.sidebar:
 # Top Nav
 st.markdown(f"""
     <div class="top-nav">
-        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v28.0</small></div>
+        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v29.0</small></div>
         <div style="display:flex; gap:15px; align-items:center;">
             <div style="width:10px; height:10px; background:#22c55e; border-radius:50%; box-shadow:0 0 10px #22c55e;"></div>
         </div>
@@ -376,15 +399,12 @@ st.markdown(f"""
 current_page = st.session_state.get('current_page', 'Dashboard')
 selected_tag = st.session_state.get('selected_tag')
 
-# V26.0 - NEW SCROLLABLE TAB NAVIGATION
+# V29.0 - SYNCHRONIZED NAV TABS
 nav_tabs_html = '<div class="nav-tabs-wrapper">'
 for item in nav_items:
     active_class = "active" if current_page == item["name"] else ""
-    # In a real app we'd need a multi-page or query param sync, 
-    # but for this simulation we use simple labels as triggers via session state bridge.
-    # Note: Streamlit buttons inside HTML are tricky, so we use the sidebar as the source of truth
-    # and these simply mirror the status for visual feedback.
-    nav_tabs_html += f'<div class="nav-tab-item {active_class}">{item["label"]}</div>'
+    cat_class = f"tab-{item['name'].lower().replace('ü', 'u').replace('ö', 'o').replace('ı', 'i').replace('ş', 's').replace('ç', 'c')}"
+    nav_tabs_html += f'<div class="nav-tab-item {active_class} {cat_class}">{item["label"]}</div>'
 nav_tabs_html += '</div>'
 st.markdown(nav_tabs_html, unsafe_allow_html=True)
 
@@ -441,10 +461,13 @@ if current_page == "Dashboard":
         dashboard_html = '<div class="dashboard-wrapper">'
         for cat in visible_cats:
             cat_df = df[df['category'] == cat].head(15)
+            # Use label consistency for headers
+            cat_label = next((i['label'] for i in nav_items if i['name'] == cat), cat)
+            
             # Group by topic tag to avoid duplicates in the same column
             topics = cat_df.groupby('topic_tag')
             
-            column_content = f'<div class="category-column"><div class="column-header"><h3>{cat}</h3></div>'
+            column_content = f'<div class="category-column"><div class="column-header"><h3>{cat_label}</h3></div>'
             for t, group in topics:
                 column_content += get_card_html(group.iloc[0]).strip() + "\n"
             column_content += '</div>'
@@ -456,4 +479,4 @@ if current_page == "Dashboard":
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX V28.0 Ultimate - Developed by Antigravity AI")
+st.sidebar.caption("NucleusX V29.0 Ultimate - Developed by Antigravity AI")
