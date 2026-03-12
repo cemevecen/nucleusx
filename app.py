@@ -7,8 +7,8 @@ from categorize_engine import run_categorization_process
 
 # Sayfa Konfigürasyonu
 st.set_page_config(
-    page_title="NucleusX AI V17.0 TITAN",
-    page_icon="⚛️",
+    page_title="NucleusX AI V17.3 TITAN",
+    page_icon=None,
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -221,12 +221,12 @@ st.sidebar.markdown("---")
 df = load_data()
 
 # LOG BİLGİSİ
-print("--- !!! TITAN V17.2 STABILITY PATCH !!! ---")
+print("--- !!! TITAN V17.3 PURE LIGHT DEPLOY !!! ---")
 
 # Canlıda cache'i temizle
-if 'init_v17_2' not in st.session_state:
+if 'init_v17_3' not in st.session_state:
     st.cache_data.clear()
-    st.session_state.init_v17_2 = True
+    st.session_state.init_v17_3 = True
 
 # Oturum Durumu (Navigasyon ve Filtreler İçin)
 if 'current_page' not in st.session_state:
@@ -264,12 +264,12 @@ st.markdown("""
 st.markdown("""
     <div class="top-nav">
         <div class="logo-text">
-            NUCLEUS <b>X</b> <span style="font-size: 0.8rem; opacity: 0.5;">v17.2 TITAN</span>
+            NUCLEUS <b>X</b> <span style="font-size: 0.8rem; opacity: 0.5;">v17.3 TITAN</span>
         </div>
         <div class="search-box"> Haberlerde ara...</div>
         <div style="display: flex; gap: 15px; align-items: center;">
             <span style="background: #2563eb; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.5px;">SYSTEM LIVE</span>
-            <span style="background: #f1f5f9; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0;">👤</span>
+            <span style="background: #f1f5f9; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0; font-size: 0.7rem; font-weight: bold; color: #64748b;">ID</span>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -336,13 +336,13 @@ if not df.empty:
                 st.session_state.selected_tag = tag
                 st.rerun()
         if st.session_state.selected_tag:
-            tag_cols[-1].button("❌ Reset", on_click=clear_tag)
+            tag_cols[-1].button("Reset", on_click=clear_tag)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
 # FİLTRELİ KONU GÖRÜNÜMÜ
 if st.session_state.selected_tag:
-    st.markdown(f"### 📍 {st.session_state.selected_tag} Hakkındaki Tüm Gelişmeler")
+    st.markdown(f"### [TAG] {st.session_state.selected_tag} Hakkındaki Tüm Gelişmeler")
     tag_df = df[df['topic_tag'] == st.session_state.selected_tag]
     
     tag_cols = st.columns(3)
@@ -354,10 +354,10 @@ if st.session_state.selected_tag:
             # Başlığa Tıklandığında Twite Gitme Özelliği
             title_html = f'<div class="card-title"><a href="{row["tweet_url"]}" target="_blank">{row["author"]}</a></div>' if row.get('tweet_url') else f'<div class="card-title">{row["author"]}</div>'
             
-            card_html = f'<div class="news-card">{media_html}{title_html}<div style="font-size:0.95rem; line-height:1.4;">{clickable_content}</div><div class="card-meta"><span>🕒 {row["processed_at"]}</span><span style="color:#2563eb;">{row["category"]}</span></div></div>'
+            card_html = f'<div class="news-card">{media_html}{title_html}<div style="font-size:0.95rem; line-height:1.4;">{clickable_content}</div><div class="card-meta"><span>SAAT: {row["processed_at"]}</span><span style="color:#2563eb;">{row["category"]}</span></div></div>'
             st.markdown(card_html, unsafe_allow_html=True)
     
-    if st.button("⬅️ Ana Sayfaya Dön", on_click=clear_tag):
+    if st.button("Ana Sayfaya Dön", on_click=clear_tag):
         st.rerun()
     st.stop()
 
@@ -368,13 +368,12 @@ if st.session_state.current_page != "Dashboard":
     # Başlığı bulalım
     cat_label = next((item["label"] for item in nav_items if item["name"] == cat_name), cat_name)
     
-    # Kategori İkonları (İçerik için)
     cat_icons = {
-        "Dashboard": "🏠", "Türkiye": "🇹🇷", "Ekonomi": "💰", 
-        "Teknoloji": "⚡", "Spor": "⚽", "Dünya": "🌍", 
-        "Eğlence": "🍿", "Müzik": "🎵"
+        "Dashboard": "", "Türkiye": "", "Ekonomi": "", 
+        "Teknoloji": "", "Spor": "", "Dünya": "", 
+        "Eğlence": "", "Müzik": ""
     }
-    icon = cat_icons.get(cat_name, "📰")
+    icon = cat_icons.get(cat_name, "")
 
     st.markdown(f"""
         <div style="padding: 20px; background: white; border-bottom: 2px solid #3b82f6; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
@@ -402,10 +401,10 @@ if st.session_state.current_page != "Dashboard":
                 tag_label = row["topic_tag"] if row["topic_tag"] and str(row["topic_tag"]) != "None" else row["category"]
                 if not tag_label.startswith("#"): tag_label = f"#{tag_label}"
                 
-                card_html = f'<div class="news-card">{media_html}{title_html}<div style="font-size:0.95rem; line-height:1.4; color: #1e293b;">{clickable_content}</div><div class="card-meta"><span>🕒 {row["processed_at"]}</span><span style="color:#2563eb;">{tag_label}</span></div></div>'
+                card_html = f'<div class="news-card">{media_html}{title_html}<div style="font-size:0.95rem; line-height:1.4; color: #1e293b;">{clickable_content}</div><div class="card-meta"><span>SAAT: {row["processed_at"]}</span><span style="color:#2563eb;">{tag_label}</span></div></div>'
                 st.markdown(card_html, unsafe_allow_html=True)
     
-    if st.button("⬅️ Tüm Haberlere Dön"):
+    if st.button("Tüm Haberlere Dön"):
         set_page("Dashboard")
         st.rerun()
     st.stop()
@@ -419,9 +418,9 @@ visible_categories = [cat for cat in all_categories if not df[df['category'] == 
 
 # Kategori İkonları (İçerik için)
 cat_icons = {
-    "Dashboard": "🏠", "Türkiye": "🇹🇷", "Ekonomi": "💰", 
-    "Teknoloji": "⚡", "Spor": "⚽", "Dünya": "🌍", 
-    "Eğlence": "🍿", "Müzik": "🎵"
+    "Dashboard": "", "Türkiye": "", "Ekonomi": "", 
+    "Teknoloji": "", "Spor": "", "Dünya": "", 
+    "Eğlence": "", "Müzik": ""
 }
 
 # --- ANA SAYFA (GRID GÖRÜNÜMÜ) ---
@@ -432,8 +431,8 @@ if st.session_state.current_page == "Dashboard":
         
         with cols[i]:
             # Kolon Başlığı
-            icon = cat_icons.get(category, "📰")
-            st.markdown(f'<div class="column-header"><h3>{icon} {category}</h3><small>{len(cat_df)} Önemli Gelişme</small></div>', unsafe_allow_html=True)
+            icon = cat_icons.get(category, "")
+            st.markdown(f'<div class="column-header"><h3>{category}</h3><small>{len(cat_df)} Gelişme</small></div>', unsafe_allow_html=True)
             
             # Kolon İçeriği
             column_html = ""
@@ -462,31 +461,31 @@ if st.session_state.current_page == "Dashboard":
                 # Tıklanabilir linkler (Hız için sadece title'a link veriyoruz)
                 final_title = f'<a href="{display_news["tweet_url"]}" target="_blank" style="text-decoration:none; color:#1e40af;">{news_title}</a>' if display_news.get('tweet_url') else news_title
                 
-                extra_info = f'<div style="color:#2563eb; font-size:0.75rem; margin-top:5px; font-weight:600;">✨ {len(group)} Kaynak</div>' if len(group) > 1 else ""
+                extra_info = f'<div style="color:#2563eb; font-size:0.75rem; margin-top:5px; font-weight:600;">{len(group)} Kaynak</div>' if len(group) > 1 else ""
                 
                 author_name = (display_news.get('author') or 'Anonim')[:25]
-                card_html = f'<div class="news-card">{media_html}<div class="card-title" style="font-size:0.9rem; margin-bottom:5px;">{final_title}</div><div style="font-size:0.8rem; color:#475569; line-height:1.4;">{news_desc}</div><div class="card-meta"><span>👤 {author_name}</span><span>🕒 {display_news["processed_at"]}</span><span style="color:#2563eb; font-weight:700;">{tag if str(tag).startswith("#") else f"#{tag}"}</span></div>{extra_info}</div>'
+                card_html = f'<div class="news-card">{media_html}<div class="card-title" style="font-size:0.9rem; margin-bottom:5px;">{final_title}</div><div style="font-size:0.8rem; color:#475569; line-height:1.4;">{news_desc}</div><div class="card-meta"><span>YAZAR: {author_name}</span><span>SAAT: {display_news["processed_at"]}</span><span style="color:#2563eb; font-weight:700;">{tag if str(tag).startswith("#") else f"#{tag}"}</span></div>{extra_info}</div>'
                 column_html += card_html.strip()
             
             st.markdown(column_html, unsafe_allow_html=True)
 
 # Manuel Yenileme Butonu (Test İçin Sınırsız, Ancak Kota Dostu)
-if st.sidebar.button("🔄 Şimdi Yeni Haberleri Tara"):
+if st.sidebar.button("Şimdi Yeni Haberleri Tara"):
     # 1. Şifre Kontrolü
     if admin_password != ADMIN_PASS:
-        st.sidebar.error("❌ Hatalı şifre! Tarama izniniz yok.")
+        st.sidebar.error("Hatalı şifre! Tarama izniniz yok.")
     else:
         # Motor artık adım adım (generator) çalıştığı için döngüyle bildirim alıyoruz
         status_text = st.sidebar.empty()
-        with st.spinner("🚀 NucleusX AI Haberleri Topluyor..."):
+        with st.spinner("NucleusX AI Haberleri Topluyor..."):
             try:
                 for update in run_categorization_process():
-                    status_text.info(update)
-                st.success("✅ Tarama tamamlandı! Sayfa yenileniyor...")
+                    status_text.info(update.replace("🚀", "").replace("✅", "").replace("🧹", "").replace("♻️", ""))
+                st.success("Tarama tamamlandı! Sayfa yenileniyor...")
                 time.sleep(1)
                 st.rerun()
             except Exception as e:
-                st.error(f"❌ Tarama sırasında bir hata oluştu: {e}")
+                st.error(f"Tarama sırasında bir hata oluştu: {e}")
 
 def recategorize_all_news():
     """Veritabanındaki TÜM haberleri AI ile tekrar tarayıp hashtag (#) atar. 
@@ -499,35 +498,35 @@ def recategorize_all_news():
     cursor.execute("SELECT id, content FROM tweets")
     rows = cursor.fetchall()
     
-    yield f"🧹 {len(rows)} haber için derin analiz başlıyor..."
+    yield f"{len(rows)} haber için derin analiz başlıyor..."
     
     for row_id, content in rows:
         cat, tag = get_full_analysis(content)
         cursor.execute("UPDATE tweets SET category = %s, topic_tag = %s WHERE id = %s", (cat, tag, row_id))
         conn.commit()
-        yield f"♻️ {tag} [{cat}] (ID: {row_id})"
+        yield f"{tag} [{cat}] (ID: {row_id})"
     
     conn.close()
-    yield "✅ Veritabanı başarıyla optimize edildi!"
+    yield "Veritabanı başarıyla optimize edildi!"
 
 # MİGRASYON / BAKIM BUTONU
-if st.sidebar.button("🧹 Tüm Veritabanını Optimize Et"):
+if st.sidebar.button("Tüm Veritabanını Optimize Et"):
     if admin_password != ADMIN_PASS:
-        st.sidebar.error("❌ Yönetici yetkisi gerekli.")
+        st.sidebar.error("Yönetici yetkisi gerekli.")
     else:
         status_text = st.sidebar.empty()
-        with st.spinner("🛠️ Eski haberler kümeleniyor..."):
+        with st.spinner("Eski haberler kümeleniyor..."):
             try:
                 for log in recategorize_all_news():
                     status_text.info(log)
                 # Önbelleği temizleyelim ki yeni hashtagler hemen gelsin
                 st.cache_data.clear()
-                st.success("✨ Tüm geçmiş veriler optimize edildi!")
+                st.success("Tüm geçmiş veriler optimize edildi!")
                 time.sleep(1)
                 st.rerun()
             except Exception as e:
-                st.error(f"❌ Optimizasyon hatası: {e}")
+                st.error(f"Optimizasyon hatası: {e}")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("🚀 **NucleusX Engine v17.2 Stability Patch**")
-st.sidebar.caption("Developed by Antigravity AI 🤖")
+st.sidebar.caption("NucleusX Engine v17.3 Stability Patch")
+st.sidebar.caption("Developed by Antigravity AI")
