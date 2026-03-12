@@ -232,6 +232,11 @@ def load_data():
         return pd.DataFrame()
 
 # Kenar Çubuğu
+st.sidebar.markdown(f"""
+    <div style="padding:10px; background-color:#ef4444; color:white; border-radius:10px; text-align:center; font-weight:bold; margin-bottom:20px;">
+        🚀 SİSTEM GÜNCEL: V9.2
+    </div>
+""", unsafe_allow_html=True)
 st.sidebar.title("🚀 NucleusX AI")
 st.sidebar.markdown("---")
 
@@ -249,7 +254,7 @@ st.sidebar.markdown("---")
 df = load_data()
 
 # LOG BİLGİSİ
-print("--- NucleusX UI V9.1 Speed Boost Devrede ---")
+print("--- NucleusX UI V9.2 FORCE REFRESH ---")
 
 # Oturum Durumu (Navigasyon ve Filtreler İçin)
 if 'current_page' not in st.session_state:
@@ -540,5 +545,5 @@ if st.sidebar.button("🧹 Tüm Veritabanını Optimize Et"):
                 st.error(f"❌ Optimizasyon hatası: {e}")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("🚀 **NucleusX Engine v9.1 Speed Boost**")
+st.sidebar.caption("🚀 **NucleusX Engine v9.2**")
 st.sidebar.caption("Developed by Antigravity AI 🤖")
