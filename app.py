@@ -10,7 +10,7 @@ from categorize_engine import run_categorization_process
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V32.0 LUXURY",
+    page_title="NucleusX AI V33.0 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -393,7 +393,7 @@ with st.sidebar:
 # Top Nav
 st.markdown(f"""
     <div class="top-nav">
-        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v32.0</small></div>
+        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v33.0</small></div>
 """, unsafe_allow_html=True)
 
 # Main Navigation Router
@@ -432,10 +432,10 @@ if current_page != "Dashboard":
     
     cat_df = df[df['category'] == current_page].head(60)
     if not cat_df.empty:
-        # Wide Layout: Use 1 or 2 wide columns depending on user taste, but "geniş yapı" usually means fewer columns
-        wide_cols = st.columns([2, 1]) # Focus on main column
+        # 3-column grid as requested (3erli yan yana)
+        grid = st.columns(3)
         for idx, row in cat_df.iterrows():
-            with wide_cols[0 if idx % 2 == 0 else 1]:
+            with grid[idx % 3]:
                  st.markdown(get_card_html(row), unsafe_allow_html=True)
     else:
         st.info("Bu kategoride henüz haber yok.")
@@ -484,4 +484,4 @@ if current_page == "Dashboard":
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX V32.0 Ultimate - Developed by Antigravity AI")
+st.sidebar.caption("NucleusX V33.0 Ultimate - Developed by Antigravity AI")
