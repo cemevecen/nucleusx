@@ -28,21 +28,22 @@ st.markdown("""
         background-color: #f8fafc !important;
     }
     
-    /* Header (Top Nav) - Premium Style */
+    /* Header (Top Nav) - Elegant Style */
     .top-nav {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 15px 40px;
-        background: white;
-        border-bottom: 2px solid #2563eb;
+        padding: 5px 25px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid #e2e8f0;
         position: sticky;
         top: 0;
-        z-index: 9999;
-        margin-bottom: 30px;
+        z-index: 1000;
+        margin-bottom: 20px;
+        margin-top: -10px;
         margin-left: -5rem;
         margin-right: -5rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
     .logo-text {
         font-weight: 800;
@@ -141,22 +142,29 @@ st.markdown("""
         font-size: 0.75rem;
     }
 
-    /* Dashboard Grid - HORIZONTAL SCROLL SCOPED */
-    .main-grid [data-testid="stHorizontalBlock"] {
+    /* Horizontal Scroll Logic - Global & Specific */
+    [data-testid="stHorizontalBlock"] {
         display: flex !important;
         flex-direction: row !important;
-        overflow-x: auto !important;
         flex-wrap: nowrap !important;
-        gap: 25px !important;
-        padding: 20px 10px !important;
-        background: #f8fafc;
-        border-radius: 15px;
+        overflow-x: auto !important;
+        gap: 20px !important;
+        padding: 10px !important;
+        scrollbar-width: thin !important;
     }
     
-    .main-grid [data-testid="column"] {
+    [data-testid="column"] {
         flex: 0 0 320px !important;
         min-width: 320px !important;
         max-width: 320px !important;
+    }
+    
+    /* Responsive adjustment for small screens */
+    @media (max-width: 768px) {
+        [data-testid="column"] {
+            flex: 0 0 85% !important;
+            min-width: 85% !important;
+        }
     }
     </style>
 """, unsafe_allow_html=True)
@@ -213,12 +221,12 @@ st.sidebar.markdown("---")
 df = load_data()
 
 # LOG BİLGİSİ
-print("--- !!! ULTIMATE TITAN V17.0 DEPLOY !!! ---")
+print("--- !!! ULTIMATE TITAN V17.1 FINAL DEPLOY !!! ---")
 
 # Canlıda cache'i temizle
-if 'init_v17_0' not in st.session_state:
+if 'init_v17_1' not in st.session_state:
     st.cache_data.clear()
-    st.session_state.init_v17_0 = True
+    st.session_state.init_v17_1 = True
 
 # Oturum Durumu (Navigasyon ve Filtreler İçin)
 if 'current_page' not in st.session_state:
@@ -256,11 +264,12 @@ st.markdown("""
 st.markdown("""
     <div class="top-nav">
         <div class="logo-text">
-            ⚛️ NUCLEUS <b>X</b> <span style="font-size: 0.8rem; opacity: 0.5;">v17.0 TITAN</span>
+            NUCLEUS <b>X</b> <span style="font-size: 0.8rem; opacity: 0.5;">v17.1 FINAL</span>
         </div>
         <div class="search-box"> Haberlerde ara...</div>
-        <div style="display: flex; gap: 20px; align-items: center;">
-            <span style="background: #2563eb; color: white; padding: 10px; border-radius: 50%; font-weight: bold;">👤</span>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <span style="background: #2563eb; color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;">LIVE</span>
+            <span style="background: #e2e8f0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">👤</span>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -415,14 +424,11 @@ cat_icons = {
     "Eğlence": "🍿", "Müzik": "🎵"
 }
 
-if not visible_categories:
-    st.info("Son 3 gün içinde henüz kategorize edilmiş haber bulunamadı.")
-else:
-    st.markdown('<div class="main-grid">', unsafe_allow_html=True)
+# --- ANA SAYFA (GRID GÖRÜNÜMÜ) ---
+if st.session_state.current_page == "Dashboard":
     cols = st.columns(len(visible_categories))
-
     for i, category in enumerate(visible_categories):
-        cat_df = df[df['category'] == category].head(15) 
+        cat_df = df[df['category'] == category].head(15) if not df.empty else pd.DataFrame()
         
         with cols[i]:
             # Kolon Başlığı
@@ -458,22 +464,9 @@ else:
                 
                 extra_info = f'<div style="color:#2563eb; font-size:0.75rem; margin-top:5px; font-weight:600;">✨ {len(group)} Kaynak</div>' if len(group) > 1 else ""
                 
-                column_html += f"""
-                <div class="news-card">
-                    {media_html}
-                    <div class="card-title" style="font-size:0.9rem; margin-bottom:5px;">{final_title}</div>
-                    <div style="font-size:0.8rem; color:#475569; line-height:1.4;">{news_desc}</div>
-                    <div class="card-meta">
-                        <span>👤 {str(display_news.get('author', 'Anonim'))[:25]}</span>
-                        <span>🕒 {display_news["processed_at"]}</span>
-                        <span style="color:#2563eb; font-weight:700;">{tag if str(tag).startswith('#') else f'#{tag}'}</span>
-                    </div>
-                    {extra_info}
-                </div>
-                """
+                column_html += f'<div class="news-card">{media_html}<div class="card-title" style="font-size:0.9rem; margin-bottom:5px;">{final_title}</div><div style="font-size:0.8rem; color:#475569; line-height:1.4;">{news_desc}</div><div class="card-meta"><span>👤 {str(display_news.get("author", "Anonim"))[:25]}</span><span>🕒 {display_news["processed_at"]}</span><span style="color:#2563eb; font-weight:700;">{tag if str(tag).startswith("#") else f"#{tag}"}</span></div>{extra_info}</div>'
             
             st.markdown(column_html, unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
 
 # Manuel Yenileme Butonu (Test İçin Sınırsız, Ancak Kota Dostu)
 if st.sidebar.button("🔄 Şimdi Yeni Haberleri Tara"):
