@@ -5,12 +5,13 @@ import time
 import html
 from database import init_db, get_db_connection
 from categorize_engine import run_categorization_process
+import streamlit.components.v1 as components
 
 # -----------------------------------------------------------------------------
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V33.1 LUXURY",
+    page_title="NucleusX AI V35.0 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -287,7 +288,19 @@ st.markdown("""
 # -----------------------------------------------------------------------------
 # HELPERS
 # -----------------------------------------------------------------------------
-def get_card_html(row, cat_name_override=None):
+def render_twitter_embed(tweet_url):
+    """Renders a live Twitter embed using components.html."""
+    embed_code = f"""
+    <div style="display: flex; justify-content: center; width: 100%; border-radius: 12px; overflow: hidden; background: #f8fafc; padding: 20px; border: 1px solid #e2e8f0;">
+        <blockquote class="twitter-tweet" data-theme="light" data-width="100%">
+            <a href="{tweet_url}"></a>
+        </blockquote>
+    </div>
+    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+    """
+    components.html(embed_code, height=600, scrolling=True)
+
+def get_card_html(row, cat_name_override=None, current_page="Dashboard"):
     """Generates standardized HTML for a news card (Escaped & Sanitized)."""
     content_raw = str(row.get('content', '')).replace("\n", " ")
     
@@ -315,9 +328,27 @@ def get_card_html(row, cat_name_override=None):
     cat_class = f"cat-{cat_val.lower().replace('ü', 'u').replace('ö', 'o').replace('ı', 'i').replace('ş', 's').replace('ç', 'c')}"
 
     media_html = f'<div style="width:100%; height:160px; overflow:hidden;"><img src="{media_url}" style="width:100%; height:100%; object-fit:cover;"></div>' if media_url else ""
-    title_html = f'<a href="{tweet_url}" target="_blank">{news_title}</a>'
+    title_html = f'<a href="{tweet_url}" target="_blank" style="pointer-events: none;">{news_title}</a>'
     
-    return f'<div class="news-card {cat_class}">{media_html}<div class="news-card-content"><div class="card-title">{title_html}</div><div class="card-desc">{news_desc}</div><div class="card-meta"><span>{author_name}</span><div class="sparkline"></div><span>{processed_at}</span></div></div></div>'
+    # expansión routing bridge link
+    expand_url = f"/?page={current_page}&expand={tweet_url}"
+    
+    return f'''
+    <a href="{expand_url}" target="_self" style="text-decoration:none; color:inherit; display:block;">
+        <div class="news-card {cat_class}">
+            {media_html}
+            <div class="news-card-content">
+                <div class="card-title">{title_html}</div>
+                <div class="card-desc">{news_desc}</div>
+                <div class="card-meta">
+                    <span>{author_name}</span>
+                    <div class="sparkline"></div>
+                    <span>{processed_at}</span>
+                </div>
+            </div>
+        </div>
+    </a>
+    '''
 
 @st.cache_data(ttl=600)
 def load_data():
@@ -340,6 +371,10 @@ def load_data():
 # Query Parameter Routing Bridge
 if "page" in st.query_params:
     st.session_state.current_page = st.query_params["page"]
+if "expand" in st.query_params:
+    st.session_state.expand_url = st.query_params["expand"]
+else:
+    st.session_state.expand_url = None
 
 df = load_data()
 
@@ -393,12 +428,19 @@ with st.sidebar:
 # Top Nav
 st.markdown(f"""
     <div class="top-nav">
-        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v33.1</small></div>
+        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v35.0</small></div>
 """, unsafe_allow_html=True)
 
 # Main Navigation Router
 current_page = st.session_state.get('current_page', 'Dashboard')
 selected_tag = st.session_state.get('selected_tag')
+expand_url = st.session_state.get('expand_url')
+
+# FOCUS VIEW (Expanded Tweet) - V35.0
+if expand_url:
+    st.markdown(f'<div style="padding: 10px 0; border-bottom: 2px solid #f1f5f9; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;"><h3 style="margin:0; color:#1e3a8a;">Haber Detayı</h3><a href="/?page={current_page}" target="_self" style="text-decoration:none; background:#f1f5f9; padding:8px 15px; border-radius:8px; color:#475569; font-weight:700;">✕ Kapat</a></div>', unsafe_allow_html=True)
+    render_twitter_embed(expand_url)
+    st.markdown("<br><hr><br>", unsafe_allow_html=True)
 
 # V32.0 - DYNAMIC NAV TABS (Functional Links)
 nav_tabs_html = '<div class="nav-tabs-wrapper">'
@@ -436,7 +478,7 @@ if current_page != "Dashboard":
         grid = st.columns(3)
         for idx, row in cat_df.iterrows():
             with grid[idx % 3]:
-                 st.markdown(get_card_html(row), unsafe_allow_html=True)
+                 st.markdown(get_card_html(row, current_page=current_page), unsafe_allow_html=True)
     else:
         st.info("Bu kategoride henüz haber yok.")
     
@@ -474,7 +516,7 @@ if current_page == "Dashboard":
             
             column_content = f'<div class="category-column"><div class="column-header"><h3>{cat_label}</h3></div>'
             for t, group in topics:
-                column_content += get_card_html(group.iloc[0]).strip() + "\n"
+                column_content += get_card_html(group.iloc[0], current_page=current_page).strip() + "\n"
             column_content += '</div>'
             dashboard_html += column_content
         
@@ -484,4 +526,4 @@ if current_page == "Dashboard":
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX V33.1 Ultimate - Developed by Antigravity AI")
+st.sidebar.caption("NucleusX V35.0 Ultimate - Developed by Antigravity AI")
