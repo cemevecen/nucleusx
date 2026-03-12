@@ -10,7 +10,7 @@ from categorize_engine import run_categorization_process
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V23.3 LUXURY",
+    page_title="NucleusX AI V23.4 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -77,25 +77,22 @@ st.markdown("""
        ======================================================= */
     .stApp { background-color: #ffffff !important; }
     
-    /* SCROLLABLE CATEGORY TABS CONTAINER */
-    [data-testid="stHorizontalBlock"] {
+    /* SCROLLABLE CATEGORY TABS CONTAINER - FORCED */
+    div[data-testid="stHorizontalBlock"] {
         display: flex !important;
         flex-wrap: nowrap !important;
         overflow-x: auto !important;
-        gap: 24px !important;
-        padding-bottom: 30px !important;
-        padding-top: 10px !important;
-        scrollbar-width: thin;
-        scrollbar-color: #6366f1 #f8fafc;
+        overflow-y: hidden !important;
+        gap: 20px !important;
+        padding: 10px 0 30px 0 !important;
+        width: 100% !important;
     }
-    [data-testid="stHorizontalBlock"]::-webkit-scrollbar { height: 6px; }
-    [data-testid="stHorizontalBlock"]::-webkit-scrollbar-track { background: #f8fafc; }
-    [data-testid="stHorizontalBlock"]::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-    [data-testid="stHorizontalBlock"]::-webkit-scrollbar-thumb:hover { background: #6366f1; }
-
-    [data-testid="column"] { 
-        flex: 0 0 calc(25% - 18px) !important; 
-        min-width: 280px !important; 
+    
+    /* 4 COLUMNS VISIBLE, OTHERS SCROLLABLE */
+    div[data-testid="stHorizontalBlock"] > div[data-testid="column"] { 
+        flex: 0 0 calc(25% - 15px) !important; 
+        min-width: calc(25% - 15px) !important;
+        max-width: calc(25% - 15px) !important;
     }
     
     /* TOP NAV: PRO & CLEAN */
@@ -311,7 +308,7 @@ with st.sidebar:
 # Top Nav
 st.markdown(f"""
     <div class="top-nav">
-        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v22.0</small></div>
+        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v23.4</small></div>
         <div style="display:flex; gap:15px; align-items:center;">
             <div style="width:10px; height:10px; background:#22c55e; border-radius:50%; box-shadow:0 0 10px #22c55e;"></div>
         </div>
@@ -368,7 +365,7 @@ if current_page == "Dashboard":
                     st.rerun()
 
     # Multi Column Feed
-    all_cats = ["Türkiye", "Dünya", "Ekonomi", "Teknoloji", "Spor", "Müzik", "Eğlence"]
+    all_cats = ["Türkiye", "Dünya", "Ekonomi", "Müzik", "Teknoloji", "Spor", "Eğlence"]
     visible_cats = [c for c in all_cats if not df[df['category'] == c].empty]
     
     if visible_cats:
