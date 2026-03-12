@@ -10,7 +10,7 @@ from categorize_engine import run_categorization_process
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V24.0 LUXURY",
+    page_title="NucleusX AI V25.0 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -77,27 +77,37 @@ st.markdown("""
        ======================================================= */
     .stApp { background-color: #ffffff !important; }
     
-    /* NUCLEAR FIX: FORCE 4 COLUMNS & HORIZONTAL SCROLL */
-    [data-testid="stHorizontalBlock"] {
+    /* DASHBOARD GRID: NUCLEAR FIX V25.0 */
+    .dashboard-wrapper {
         display: flex !important;
         flex-wrap: nowrap !important;
         overflow-x: auto !important;
         overflow-y: hidden !important;
-        width: 100% !important;
         gap: 20px !important;
-        padding-bottom: 20px !important;
+        padding: 10px 0 30px 0 !important;
+        width: 100% !important;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
     }
-    
-    /* Target columns and prevent them from shrinking below 24% (1/4th roughly) */
-    [data-testid="stHorizontalBlock"] > div[data-testid="column"] { 
-        flex: 0 0 calc(25% - 20px) !important; 
-        min-width: calc(25% - 20px) !important;
-        max-width: calc(25% - 20px) !important;
+    .dashboard-wrapper::-webkit-scrollbar { height: 6px; }
+    .dashboard-wrapper::-webkit-scrollbar-track { background: #f8fafc; }
+    .dashboard-wrapper::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    .dashboard-wrapper::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+
+    .category-column { 
+        flex: 0 0 calc(25% - 15px) !important; 
+        min-width: calc(25% - 15px) !important;
+        max-width: calc(25% - 15px) !important;
         flex-shrink: 0 !important;
     }
 
-    /* Hide the default streamlit column width styles */
-    div[data-testid="column"] { width: auto !important; }
+    @media (max-width: 1200px) {
+        .category-column { flex: 0 0 calc(50% - 15px) !important; min-width: calc(50% - 15px) !important; }
+    }
+    @media (max-width: 768px) {
+        .category-column { flex: 0 0 100% !important; min-width: 100% !important; }
+        .dashboard-wrapper { flex-direction: column !important; overflow-x: hidden !important; }
+    }
     
     /* TOP NAV: PRO & CLEAN */
     .top-nav {
@@ -312,7 +322,7 @@ with st.sidebar:
 # Top Nav
 st.markdown(f"""
     <div class="top-nav">
-        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v24.0</small></div>
+        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v25.0</small></div>
         <div style="display:flex; gap:15px; align-items:center;">
             <div style="width:10px; height:10px; background:#22c55e; border-radius:50%; box-shadow:0 0 10px #22c55e;"></div>
         </div>
@@ -373,19 +383,22 @@ if current_page == "Dashboard":
     visible_cats = [c for c in all_cats if not df[df['category'] == c].empty]
     
     if visible_cats:
-        d_cols = st.columns(len(visible_cats))
-        for i, cat in enumerate(visible_cats):
-            with d_cols[i]:
-                st.markdown(f'<div class="column-header"><h3>{cat}</h3></div>', unsafe_allow_html=True)
-                cat_df = df[df['category'] == cat].head(15)
-                # Group by topic tag to avoid duplicates in the same column
-                topics = cat_df.groupby('topic_tag')
-                col_html = ""
-                for t, group in topics:
-                    col_html += get_card_html(group.iloc[0]).strip() + "\n"
-                st.markdown(col_html, unsafe_allow_html=True)
+        dashboard_html = '<div class="dashboard-wrapper">'
+        for cat in visible_cats:
+            cat_df = df[df['category'] == cat].head(15)
+            # Group by topic tag to avoid duplicates in the same column
+            topics = cat_df.groupby('topic_tag')
+            
+            column_content = f'<div class="category-column"><div class="column-header"><h3>{cat}</h3></div>'
+            for t, group in topics:
+                column_content += get_card_html(group.iloc[0]).strip() + "\n"
+            column_content += '</div>'
+            dashboard_html += column_content
+        
+        dashboard_html += '</div>'
+        st.markdown(dashboard_html, unsafe_allow_html=True)
     else:
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX V22.0 Ultimate - Developed by Antigravity AI")
+st.sidebar.caption("NucleusX V25.0 Ultimate - Developed by Antigravity AI")
