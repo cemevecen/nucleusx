@@ -61,33 +61,34 @@ st.markdown("""
         font-size: 0.9rem;
     }
 
-    /* Sidebar - DARK SLATE */
-    [data-testid="stSidebar"] {
+    /* Sidebar - DARK SLATE FORCE */
+    section[data-testid="stSidebar"] {
         background-color: #1e293b !important;
+    }
+    section[data-testid="stSidebar"] .stMarkdown p {
         color: white !important;
     }
-    [data-testid="stSidebar"] * {
-        color: white !important;
-    }
-    /* Premium Sidebar Buttons - V12.0 Blue Theme */
+    
+    /* Premium Sidebar Buttons - V13.0 Clean Theme */
     div[data-testid="stSidebar"] div.stButton > button {
-        background-color: #2563eb !important; /* Blue Primary */
-        border: none !important;
-        color: white !important;
-        text-align: center !important; /* Centered as per new clean style */
+        background-color: transparent !important;
+        border: 2px solid rgba(255, 255, 255, 0.2) !important;
+        color: #ffffff !important;
+        text-align: center !important;
         padding: 10px 15px !important;
         font-size: 0.95rem !important;
         font-weight: 600 !important;
-        border-radius: 8px !important;
-        transition: all 0.2s ease !important;
+        border-radius: 10px !important;
+        transition: all 0.2s ease-in-out !important;
         margin-bottom: 8px !important;
         width: 100% !important;
     }
     div[data-testid="stSidebar"] div.stButton > button:hover {
-        background-color: #1d4ed8 !important; /* Darker Blue */
-        transform: scale(1.02);
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border-color: #ffffff !important;
+        color: #ffffff !important;
     }
-    /* Active State for buttons handled via Logic */
+    /* Active State for buttons (Forced via Logic ID) */
 
     /* Trending Topics Bar */
     .trending-title {
@@ -249,12 +250,12 @@ st.sidebar.markdown("---")
 df = load_data()
 
 # LOG BİLGİSİ
-print("--- !!! NUCLEAR V12.0 DEPLOY !!! ---")
+print("--- !!! NUCLEAR V13.0 DEPLOY !!! ---")
 
 # Canlıda cache'i temizle
-if 'init_v12' not in st.session_state:
+if 'init_v13' not in st.session_state:
     st.cache_data.clear()
-    st.session_state.init_v12 = True
+    st.session_state.init_v13 = True
 
 # Oturum Durumu (Navigasyon ve Filtreler İçin)
 if 'current_page' not in st.session_state:
@@ -287,7 +288,7 @@ st.markdown("""
 st.markdown("""
     <div class="top-nav">
         <div class="logo-text">
-            <span>⚛️</span> NUCLEUS<b>X</b> <span style="font-size: 0.8rem; opacity: 0.5; font-weight: 400;">v12.0</span>
+            <span>⚛️</span> NUCLEUS<b>X</b> <span style="font-size: 0.8rem; opacity: 0.5; font-weight: 400;">v13.0</span>
         </div>
         <div class="search-box">🔍 Haberlerde veya konularda ara...</div>
         <div style="display: flex; gap: 20px; align-items: center; font-size: 1.2rem;">
@@ -330,9 +331,11 @@ with st.sidebar:
             # Aktif sayfa için özel stil
             st.sidebar.markdown(f"""
                 <style>
-                div.stButton > button[key="nav_btn_{item['name']}"] {{
-                    background-color: #1e3a8a !important; /* Navy Blue for Active */
-                    border: 1px solid white !important;
+                div[data-testid="stSidebar"] div.stButton > button[key="nav_btn_{item['name']}"] {{
+                    background-color: #2563eb !important; /* Solid Blue for Active */
+                    border: none !important;
+                    color: white !important;
+                    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4) !important;
                 }}
                 </style>
             """, unsafe_allow_html=True)
@@ -543,5 +546,5 @@ if st.sidebar.button("🧹 Tüm Veritabanını Optimize Et"):
                 st.error(f"❌ Optimizasyon hatası: {e}")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("🚀 **NucleusX Engine v12.0**")
+st.sidebar.caption("🚀 **NucleusX Engine v13.0 Platinum**")
 st.sidebar.caption("Developed by Antigravity AI 🤖")
