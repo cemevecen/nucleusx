@@ -10,7 +10,7 @@ from categorize_engine import run_categorization_process
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V23.0 LUXURY",
+    page_title="NucleusX AI V23.2 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -77,14 +77,35 @@ st.markdown("""
        ======================================================= */
     .stApp { background-color: #ffffff !important; }
     
+    /* SCROLLABLE CATEGORY TABS CONTAINER */
+    [data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        gap: 24px !important;
+        padding-bottom: 30px !important;
+        padding-top: 10px !important;
+        scrollbar-width: thin;
+        scrollbar-color: #6366f1 #f8fafc;
+    }
+    [data-testid="stHorizontalBlock"]::-webkit-scrollbar { height: 6px; }
+    [data-testid="stHorizontalBlock"]::-webkit-scrollbar-track { background: #f8fafc; }
+    [data-testid="stHorizontalBlock"]::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    [data-testid="stHorizontalBlock"]::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+
+    [data-testid="column"] { 
+        flex: 0 0 320px !important; 
+        min-width: 320px !important; 
+    }
+    
     /* TOP NAV: PRO & CLEAN */
     .top-nav {
         display: flex; justify-content: space-between; align-items: center;
-        padding: 20px 40px; background: #ffffff; border-bottom: 1px solid #e2e8f0;
-        margin-left: -5rem; margin-right: -5rem; margin-top: -10px; margin-bottom: 30px;
+        padding: 15px 40px; background: #ffffff; border-bottom: 1px solid #e2e8f0;
+        margin-left: -5rem; margin-right: -5rem; margin-top: -10px; margin-bottom: 20px;
     }
     .logo-text { font-weight: 900; font-size: 1.5rem; color: #000; letter-spacing: -0.5px; }
-    .logo-text b { color: #1e3a8a; } /* Dark Blue Accent */
+    .logo-text b { color: #1e3a8a; }
 
     /* SIDEBAR: LUXURY MINIMALISM */
     section[data-testid="stSidebar"] { 
@@ -96,21 +117,21 @@ st.markdown("""
     .news-card {
         background: #ffffff !important;
         border: 1px solid #e2e8f0;
-        border-top: 3px solid #6366f1; /* Subtle Indigo Border */
+        border-top: 3px solid #6366f1;
         border-radius: 4px;
         padding: 0px;
         margin-bottom: 20px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); /* Soft Elevation */
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         transition: all 0.25s ease;
         overflow: hidden;
     }
     .news-card:hover { 
         transform: translateY(-4px); 
-        box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); 
+        box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.1); 
         border-color: #6366f1;
     }
 
-    /* TYPOGRAPHY: BOLD BLACK TITLES */
+    /* TYPOGRAPHY */
     .news-card-content { padding: 16px; }
     .card-title a { 
         color: #000000 !important; 
@@ -126,7 +147,7 @@ st.markdown("""
     .card-title a:hover { color: #4338ca !important; }
     
     .card-desc { 
-        font-size: 0.85rem !important; 
+        font-size: 0.82rem !important; 
         color: #4b5563; 
         margin-top: 10px; 
         line-height: 1.5; 
@@ -150,14 +171,14 @@ st.markdown("""
         letter-spacing: 0.5px;
     }
     
-    /* MULTI-COLUMN FEED OPTIMIZATION */
-    [data-testid="stHorizontalBlock"] { gap: 20px !important; }
-    [data-testid="column"] { flex: 0 0 320px !important; min-width: 320px !important; }
-    
     .column-header { 
         padding: 0 0 10px 0;
-        margin-bottom: 20px; 
+        margin-bottom: 15px; 
         border-bottom: 2px solid #000;
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 10;
     }
     .column-header h3 { 
         color: #000000 !important; 
@@ -347,7 +368,7 @@ if current_page == "Dashboard":
                     st.rerun()
 
     # Multi Column Feed
-    all_cats = ["Türkiye", "Dünya", "Ekonomi", "Teknoloji", "Spor", "Eğlence", "Müzik"]
+    all_cats = ["Türkiye", "Dünya", "Ekonomi", "Teknoloji", "Spor", "Müzik", "Eğlence"]
     visible_cats = [c for c in all_cats if not df[df['category'] == c].empty]
     
     if visible_cats:
