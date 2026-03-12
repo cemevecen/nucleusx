@@ -69,23 +69,24 @@ st.markdown("""
     [data-testid="stSidebar"] * {
         color: white !important;
     }
-    /* Premium Sidebar Buttons */
+    /* Premium Sidebar Buttons - V11.0 Dark Slate Theme */
     div[data-testid="stSidebar"] div.stButton > button {
-        background-color: transparent !important;
-        border: 1px solid rgba(255,255,255,0.1) !important;
-        color: #cbd5e1 !important;
+        background-color: rgba(255, 255, 255, 0.03) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #e2e8f0 !important; /* Visible Light Grey */
         text-align: left !important;
-        padding: 10px 15px !important;
-        font-size: 0.9rem !important;
-        border-radius: 10px !important;
-        transition: all 0.3s ease !important;
-        margin-bottom: 8px !important;
+        padding: 12px 18px !important;
+        font-size: 0.95rem !important;
+        border-radius: 12px !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        margin-bottom: 10px !important;
+        box-shadow: none !important;
     }
     div[data-testid="stSidebar"] div.stButton > button:hover {
-        background-color: rgba(255,255,255,0.05) !important;
-        color: white !important;
-        border-color: rgba(255,255,255,0.3) !important;
-        transform: translateX(5px);
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+        border-color: #3b82f6 !important;
+        transform: translateX(4px);
     }
     /* Active State for buttons handled via Logic */
 
@@ -232,12 +233,7 @@ def load_data():
         return pd.DataFrame()
 
 # Kenar Çubuğu
-st.sidebar.markdown(f"""
-    <div style="padding:10px; background-color:#ef4444; color:white; border-radius:10px; text-align:center; font-weight:bold; margin-bottom:20px;">
-        🚀 SİSTEM GÜNCEL: V9.2
-    </div>
-""", unsafe_allow_html=True)
-st.sidebar.title("🚀 NucleusX AI")
+st.sidebar.title("⚛️ NucleusX AI")
 st.sidebar.markdown("---")
 
 # Sabit Değişkenler
@@ -254,12 +250,12 @@ st.sidebar.markdown("---")
 df = load_data()
 
 # LOG BİLGİSİ
-print("--- !!! V10.1 DEPLOY SUCCESSFUL !!! ---")
+print("--- !!! NUCLEAR V11.0 DEPLOY !!! ---")
 
 # Canlıda cache'i temizle
-if 'init_v10_1' not in st.session_state:
+if 'init_v11' not in st.session_state:
     st.cache_data.clear()
-    st.session_state.init_v10_1 = True
+    st.session_state.init_v11 = True
 
 # Oturum Durumu (Navigasyon ve Filtreler İçin)
 if 'current_page' not in st.session_state:
@@ -290,14 +286,11 @@ st.markdown("""
 
 # Sticky Top Nav (Logo & Search)
 st.markdown("""
-    <div style="background: #ef4444; color: white; padding: 10px; text-align: center; font-weight: 900; font-size: 1rem; border-bottom: 2px solid black;">
-        🚀 SİSTEM GÜNCEL: V10.1 PLATINUM (KRİTİK HATA DÜZELTİLDİ)
-    </div>
     <div class="top-nav">
         <div class="logo-text">
-            <span>⚛️</span> NUCLEUS<b>X</b> <span style="font-size: 0.8rem; color: #2563eb; font-weight: 800;">V10.1</span>
+            <span>⚛️</span> NUCLEUS<b>X</b> <span style="font-size: 0.8rem; opacity: 0.5; font-weight: 400;">v11.0</span>
         </div>
-        <div class="search-box">🔍 Search news, events or topics...</div>
+        <div class="search-box">🔍 Haberlerde veya konularda ara...</div>
         <div style="display: flex; gap: 20px; align-items: center; font-size: 1.2rem;">
             <span>❓</span> <span>🔔</span> <span style="background: #e2e8f0; width: 35px; height: 35px; border-radius: 50%; padding: 5px; cursor: pointer;">👤</span>
         </div>
@@ -553,5 +546,5 @@ if st.sidebar.button("🧹 Tüm Veritabanını Optimize Et"):
                 st.error(f"❌ Optimizasyon hatası: {e}")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("🚀 **NucleusX Engine v10.1**")
+st.sidebar.caption("🚀 **NucleusX Engine v11.0**")
 st.sidebar.caption("Developed by Antigravity AI 🤖")
