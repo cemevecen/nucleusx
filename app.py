@@ -28,37 +28,46 @@ st.markdown("""
         background-color: #f8fafc !important;
     }
     
-    /* Header (Top Nav) - Elegant Style */
+    /* Header (Top Nav) - Fully Responsive */
     .top-nav {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 5px 25px;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
+        padding: 10px 15px;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(15px);
         border-bottom: 1px solid #e2e8f0;
         position: sticky;
         top: 0;
         z-index: 1000;
         margin-bottom: 20px;
         margin-top: -10px;
-        margin-left: -5rem;
-        margin-right: -5rem;
+        /* Dynamics: Margin adjustment for Streamlit container */
+        margin-left: calc(-1 * min(5rem, 5vw));
+        margin-right: calc(-1 * min(5rem, 5vw));
     }
     .logo-text {
         font-weight: 800;
-        font-size: 1.5rem;
+        font-size: clamp(1.1rem, 3vw, 1.5rem);
         color: #1e293b;
+        white-space: nowrap;
     }
     .logo-text b { color: #2563eb; }
     .search-box {
         background: #f1f5f9;
         border: none;
-        padding: 10px 20px;
+        padding: 8px 15px;
         border-radius: 8px;
-        width: 400px;
+        flex: 1;
+        max-width: 400px;
+        margin: 0 15px;
         color: #64748b;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
+        display: block;
+    }
+    
+    @media (max-width: 600px) {
+        .search-box { display: none; } /* Hide search box on very small screens to save space */
     }
 
     /* Sidebar - CURRENT CLEAN STYLE (User requested same) */
@@ -142,15 +151,15 @@ st.markdown("""
         font-size: 0.75rem;
     }
 
-    /* Horizontal Scroll Logic - Global & Specific */
+    /* Horizontal Scroll Logic - Optimized */
     [data-testid="stHorizontalBlock"] {
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: nowrap !important;
         overflow-x: auto !important;
-        gap: 20px !important;
-        padding: 10px !important;
-        scrollbar-width: thin !important;
+        gap: 15px !important;
+        padding: 5px !important;
+        -webkit-overflow-scrolling: touch;
     }
     
     [data-testid="column"] {
@@ -159,12 +168,23 @@ st.markdown("""
         max-width: 320px !important;
     }
     
-    /* Responsive adjustment for small screens */
+    /* Global Card Responsive Styles */
     @media (max-width: 768px) {
         [data-testid="column"] {
-            flex: 0 0 85% !important;
-            min-width: 85% !important;
+            flex: 0 0 88% !important;
+            min-width: 88% !important;
         }
+        .top-nav { margin-left: -1rem; margin-right: -1rem; }
+    }
+    
+    /* Ensure detail pages (vertical stack) are not forced horizontal */
+    .detail-view [data-testid="stHorizontalBlock"] {
+        flex-wrap: wrap !important;
+        overflow-x: visible !important;
+    }
+    .detail-view [data-testid="column"] {
+        flex: 1 1 30% !important;
+        min-width: 300px !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -221,12 +241,12 @@ st.sidebar.markdown("---")
 df = load_data()
 
 # LOG BİLGİSİ
-print("--- !!! TITAN V17.3 PURE LIGHT DEPLOY !!! ---")
+print("--- !!! TITAN V18.0 MOBILE-READY DEPLOY !!! ---")
 
 # Canlıda cache'i temizle
-if 'init_v17_3' not in st.session_state:
+if 'init_v18_0' not in st.session_state:
     st.cache_data.clear()
-    st.session_state.init_v17_3 = True
+    st.session_state.init_v18_0 = True
 
 # Oturum Durumu (Navigasyon ve Filtreler İçin)
 if 'current_page' not in st.session_state:
@@ -264,12 +284,12 @@ st.markdown("""
 st.markdown("""
     <div class="top-nav">
         <div class="logo-text">
-            NUCLEUS <b>X</b> <span style="font-size: 0.8rem; opacity: 0.5;">v17.3 TITAN</span>
+            NUCLEUS <b>X</b> <span style="font-size: 0.7rem; opacity: 0.5;">v18.0 MOBILE</span>
         </div>
         <div class="search-box"> Haberlerde ara...</div>
-        <div style="display: flex; gap: 15px; align-items: center;">
-            <span style="background: #2563eb; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.5px;">SYSTEM LIVE</span>
-            <span style="background: #f1f5f9; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0; font-size: 0.7rem; font-weight: bold; color: #64748b;">ID</span>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <span style="background: #2563eb; color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px; white-space: nowrap;">LIVE</span>
+            <span style="background: #f1f5f9; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0; font-size: 0.65rem; font-weight: bold; color: #64748b;">ID</span>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -376,11 +396,14 @@ if st.session_state.current_page != "Dashboard":
     icon = cat_icons.get(cat_name, "")
 
     st.markdown(f"""
-        <div style="padding: 20px; background: white; border-bottom: 2px solid #3b82f6; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-            <h2 style="margin: 0; color: #1e293b; font-size: 1.8rem;">{icon} {cat_label}</h2>
-            <p style="margin: 5px 0 0 0; color: #64748b; font-size: 0.9rem;">En son {cat_name} haberleri ve gelişmeleri.</p>
+        <div class="detail-view" style="padding: 15px; background: white; border-bottom: 2px solid #3b82f6; border-radius: 12px; margin-bottom: 25px;">
+            <h2 style="margin: 0; color: #1e293b; font-size: 1.5rem;">{icon} {cat_label}</h2>
+            <p style="margin: 5px 0 0 0; color: #64748b; font-size: 0.85rem;">En son {cat_label} haberleri ve gelişmeleri.</p>
         </div>
     """, unsafe_allow_html=True)
+    
+    # Detail View Wrapper Start point
+    st.markdown('<div class="detail-view">', unsafe_allow_html=True)
     
     # Filtreleme
     cat_df = df[df['category'] == cat_name].head(60)
@@ -403,6 +426,7 @@ if st.session_state.current_page != "Dashboard":
                 
                 card_html = f'<div class="news-card">{media_html}{title_html}<div style="font-size:0.95rem; line-height:1.4; color: #1e293b;">{clickable_content}</div><div class="card-meta"><span>SAAT: {row["processed_at"]}</span><span style="color:#2563eb;">{tag_label}</span></div></div>'
                 st.markdown(card_html, unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True) # Detail View Wrapper End
     
     if st.button("Tüm Haberlere Dön"):
         set_page("Dashboard")
@@ -528,5 +552,5 @@ if st.sidebar.button("Tüm Veritabanını Optimize Et"):
                 st.error(f"Optimizasyon hatası: {e}")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX Engine v17.3 Stability Patch")
+st.sidebar.caption("NucleusX Engine v18.0 Mobile-Ready")
 st.sidebar.caption("Developed by Antigravity AI")
