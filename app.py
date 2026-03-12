@@ -113,7 +113,11 @@ st.markdown("""
         border: 1px solid #e2e8f0;
         margin-bottom: 20px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        transition: transform 0.2s;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .news-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     }
     .card-title {
         color: #1e40af !important;
@@ -121,6 +125,14 @@ st.markdown("""
         font-size: 1rem;
         line-height: 1.3;
         margin-bottom: 8px;
+        cursor: pointer;
+    }
+    .card-title a {
+        color: inherit !important;
+        text-decoration: none !important;
+    }
+    .card-title a:hover {
+        text-decoration: underline !important;
     }
     .card-meta {
         display: flex;
@@ -196,8 +208,8 @@ def make_clickable(text):
 def load_data():
     try:
         conn = get_db_connection()
-        # Sadece son 3 gündeki haberleri çekelim ki tablo şişmesin (Hız kazandırır)
-        query = "SELECT author, username, content, category, topic_tag, processed_at, media_url FROM tweets WHERE processed_at > NOW() - INTERVAL '3 days' ORDER BY processed_at DESC"
+        # Sadece son 3 gündeki haberleri çekelim
+        query = "SELECT author, username, content, category, topic_tag, processed_at, media_url, tweet_url FROM tweets WHERE processed_at > NOW() - INTERVAL '3 days' ORDER BY processed_at DESC"
         df = pd.read_sql_query(query, conn)
         conn.close()
         if not df.empty:
@@ -205,7 +217,7 @@ def load_data():
         return df
     except Exception as e:
         st.error(f"Veri yüklenirken hata oluştu: {e}")
-        return pd.DataFrame(columns=['author', 'username', 'content', 'category', 'topic_tag', 'processed_at', 'media_url'])
+        return pd.DataFrame(columns=['author', 'username', 'content', 'category', 'topic_tag', 'processed_at', 'media_url', 'tweet_url'])
 
 # Kenar Çubuğu
 st.sidebar.title("🚀 NucleusX AI")
@@ -272,10 +284,10 @@ with st.sidebar:
             <div class="sidebar-item">🧭 Explore</div>
             <div class="sidebar-item">⚖️ Politics</div>
             <div class="sidebar-item">💼 Business</div>
+            <div class="sidebar-item">📈 Economy</div>
             <div class="sidebar-item">💻 Tech</div>
             <div class="sidebar-item">🌍 World</div>
             <div class="sidebar-item">🔬 Science</div>
-            <div class="sidebar-item">💰 Finance</div>
         </div>
     """, unsafe_allow_html=True)
     st.info("Bu panel, Twitter'dan çekilen ve AI tarafından kategorize edilen haberleri gösterir.")
@@ -305,7 +317,11 @@ if st.session_state.selected_tag:
         with tag_cols[idx % 3]:
             clickable_content = make_clickable(row['content'])
             media_html = f'<img src="{row["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px; object-fit:cover; height:220px; background:#f1f5f9;">' if row.get('media_url') else ""
-            card_html = f'<div class="news-card">{media_html}<div class="card-title">{row["author"]}</div><div style="font-size:0.95rem; line-height:1.4;">{clickable_content}</div><div class="card-meta"><span>🕒 {row["processed_at"].split(" ")[1][:5]}</span><span style="color:#2563eb;">{row["category"]}</span></div></div>'
+            
+            # Başlığa Tıklandığında Twite Gitme Özelliği
+            title_html = f'<div class="card-title"><a href="{row["tweet_url"]}" target="_blank">{row["author"]}</a></div>' if row.get('tweet_url') else f'<div class="card-title">{row["author"]}</div>'
+            
+            card_html = f'<div class="news-card">{media_html}{title_html}<div style="font-size:0.95rem; line-height:1.4;">{clickable_content}</div><div class="card-meta"><span>🕒 {row["processed_at"].split(" ")[1][:5]}</span><span style="color:#2563eb;">{row["category"]}</span></div></div>'
             st.markdown(card_html, unsafe_allow_html=True)
     
     if st.button("⬅️ Ana Sayfaya Dön", on_click=clear_tag):
@@ -315,8 +331,8 @@ if st.session_state.selected_tag:
 # NORMAL GÖRÜNÜM (Scoopnest Dikey Kolon Düzeni)
 
 # Veriyi Kategorilere Göre Hazırla
-# Tüm 8 kategoriyi tek bir satırda (side-by-side) döküyoruz
-all_categories = ["Ülke Gündemi", "Dünya", "Ekonomi", "Finans", "Teknoloji", "Spor", "Eğlence", "Müzik"]
+# Ekonomi ve Finans birleştiği için Finans'ı listeden siliyoruz
+all_categories = ["Ülke Gündemi", "Dünya", "Ekonomi", "Teknoloji", "Spor", "Eğlence", "Müzik"]
 
 cols = st.columns(len(all_categories))
 
@@ -355,14 +371,21 @@ for i, category in enumerate(all_categories):
                         media_html = f'<img src="{display_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px; object-fit:cover; height:180px; background:#f1f5f9;">' if display_news.get('media_url') else ""
                         count_info = f'<div style="color:#2563eb; font-weight:bold; margin-top:8px; font-size:0.8rem;">✨ {len(group)} farklı kaynak bu konuyu geçti.</div>' if len(group) > 1 else ""
                         
-                        column_html += f'<div class="news-card">{media_html}<div class="card-title">{news_title}</div><div style="font-size:0.85rem; color:#475569; line-height:1.4;">{news_desc}</div><div class="card-meta"><span>🔹 {display_news["author"]}</span><span>🕒 {display_news["processed_at"].split(" ")[1][:5]}</span><span>📖 5 Dak.</span><span style="color:#2563eb;">{tag}</span></div>{count_info}</div>'
+                        # Başlığa Tıklandığında Twite Gitme Özelliği
+                        final_title = f'<a href="{display_news["tweet_url"]}" target="_blank">{news_title}</a>' if display_news.get('tweet_url') else news_title
+                        
+                        column_html += f'<div class="news-card">{media_html}<div class="card-title">{final_title}</div><div style="font-size:0.85rem; color:#475569; line-height:1.4;">{news_desc}</div><div class="card-meta"><span>🔹 {display_news["author"]}</span><span>🕒 {display_news["processed_at"].split(" ")[1][:5]}</span><span>📖 5 Dak.</span><span style="color:#2563eb;">{tag}</span></div>{count_info}</div>'
                         break # Grup için sadece bir kart bas
                     else:
                         # Jenerik taglerde her haberi bas
                         row_title_raw = row['content'].split('.')[0][:80] if '.' in row['content'] else row['content'][:80]
                         row_title = make_clickable(row_title_raw + "...")
+                        
+                        # Başlığa Tıklandığında Twite Gitme Özelliği
+                        final_title = f'<a href="{row["tweet_url"]}" target="_blank">{row_title}</a>' if row.get('tweet_url') else row_title
+                        
                         media_html = f'<img src="{row["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px; object-fit:cover; height:180px; background:#f1f5f9;">' if row.get('media_url') else ""
-                        column_html += f'<div class="news-card">{media_html}<div class="card-title">{row_title}</div><div class="card-meta"><span>🔹 {row["author"]}</span><span>🕒 {row["processed_at"].split(" ")[1][:5]}</span><span>📖 5 Dak.</span></div></div>'
+                        column_html += f'<div class="news-card">{media_html}<div class="card-title">{final_title}</div><div class="card-meta"><span>🔹 {row["author"]}</span><span>🕒 {row["processed_at"].split(" ")[1][:5]}</span><span>📖 5 Dak.</span></div></div>'
             
             st.markdown(column_html.strip(), unsafe_allow_html=True)
 

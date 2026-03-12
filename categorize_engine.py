@@ -34,7 +34,7 @@ def categorize_with_groq(text):
         "Content-Type": "application/json"
     }
     
-    prompt = f"Categorize this news/tweet into ONE of these: Ekonomi, Finans, Spor, Teknoloji, Eğlence, Müzik, Dünya, Ülke Gündemi. Respond with ONLY the category name.\n\nText: {text}"
+    prompt = f"Categorize this news/tweet into ONE of these: Ekonomi, Spor, Teknoloji, Eğlence, Müzik, Dünya, Ülke Gündemi. Respond with ONLY the category name.\n\nText: {text}"
     
     # 8B modeli çok daha hızlıdır ve kotası daha yüksektir, kategori için yeterlidir.
     data = {
@@ -47,7 +47,7 @@ def categorize_with_groq(text):
         response = requests.post(url, headers=headers, json=data, timeout=5)
         if response.status_code == 200:
             res = response.json()['choices'][0]['message']['content'].strip().replace(".", "")
-            if res in ["Ekonomi", "Finans", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Ülke Gündemi"]:
+            if res in ["Ekonomi", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Ülke Gündemi"]:
                 return res
         elif response.status_code == 429: # Rate limit dursa da sistem anahtar kelimeye geçmeli
              return None
@@ -94,7 +94,7 @@ def categorize_with_mistral(text):
         "Content-Type": "application/json"
     }
     
-    prompt = f"Categorize into ONE: Ekonomi, Finans, Spor, Teknoloji, Eğlence, Müzik, Dünya, Ülke Gündemi. Respond with ONLY the category name.\n\nText: {text}"
+    prompt = f"Categorize into ONE: Ekonomi, Spor, Teknoloji, Eğlence, Müzik, Dünya, Ülke Gündemi. Respond with ONLY the category name.\n\nText: {text}"
     
     data = {
         "model": "open-mistral-7b", 
@@ -105,7 +105,7 @@ def categorize_with_mistral(text):
         response = requests.post(url, headers=headers, json=data, timeout=5)
         if response.status_code == 200:
             res = response.json()['choices'][0]['message']['content'].strip().replace(".", "")
-            if res in ["Ekonomi", "Finans", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Ülke Gündemi"]:
+            if res in ["Ekonomi", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Ülke Gündemi"]:
                 return res
         return None
     except Exception:
@@ -115,8 +115,7 @@ def get_fallback_category(text):
     """AI hata verdiğinde anahtar kelimelerle kategori tahmini yapar."""
     text = text.lower()
     keywords = {
-        "Ekonomi": ["dolar", "euro", "faiz", "enflasyon", "zam", "asgari", "maai", "bakanlık", "vergi"],
-        "Finans": ["borsa", "hisse", "temettü", "kripto", "bitcoin", "altın", "btc", "eth", "yatırım"],
+        "Ekonomi": ["dolar", "euro", "faiz", "enflasyon", "zam", "asgari", "maaş", "bakanlık", "vergi", "borsa", "hisse", "temettü", "kripto", "bitcoin", "altın", "btc", "eth", "yatırım"],
         "Spor": ["gol", "maç", "skor", "futbol", "basketbol", "fenerbahçe", "galatasaray", "beşiktaş", "transfer"],
         "Teknoloji": ["iphone", "apple", "android", "yazılım", "yapay zeka", "ai", "internet", "google", "çip"],
         "Eğlence": ["film", "dizi", "netflix", "sinema", "oyuncu", "magazin", "ünlü"],
@@ -139,13 +138,13 @@ def categorize_tweet(tweet_text):
     # 1. Aşama: Gemini Dene
     if client_gemini:
         try:
-            prompt = f"Metni şu kategorilerden birine yerleştir: Ekonomi, Finans, Spor, Teknoloji, Eğlence, Müzik, Dünya, Ülke Gündemi. SADECE kategorinin ismini yaz.\nMetin: {tweet_text}"
+            prompt = f"Metni şu kategorilerden birine yerleştir: Ekonomi, Spor, Teknoloji, Eğlence, Müzik, Dünya, Ülke Gündemi. SADECE kategorinin ismini yaz.\nMetin: {tweet_text}"
             response = client_gemini.models.generate_content(
                 model='gemini-2.0-flash', # Güncel ve ücretsiz kotası geniş olan model
                 contents=prompt
             )
             res = response.text.strip().replace("[", "").replace("]", "").replace(".", "")
-            if res in ["Ekonomi", "Finans", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Ülke Gündemi"]:
+            if res in ["Ekonomi", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Ülke Gündemi"]:
                 return res
         except Exception as e:
             print(f"⚠️ Gemini Hatası (Yedeğe geçiliyor): {e}")
@@ -177,9 +176,8 @@ def run_categorization_process():
         "pusholder", "ajans_muhbir", "haskologlu", "darkwebhaber",
         # Dünya
         "bbcturkce", "euronews_tr", "dw_turkce", "voaturkce",
-        # Ekonomi
+        # Ekonomi (Merged Finans)
         "ozgurdemirtas", "temelanaliz", "ekonomimcom", "Econofia",
-        # Finans
         "borsagundem", "ParaAnaliz", "InvestingTR", "paramevzu",
         # Teknoloji
         "shiftdelete", "webteknoloji", "donanimhaber", "teknoseyir",
@@ -226,8 +224,8 @@ def run_categorization_process():
             # Yapay Zeka Devreye Girer
             kategori, konu_etiketi = get_full_analysis(tweet['text'])
 
-            # Veritabanına kaydet (Resim varsa ekle)
-            save_tweet(tweet['author'], tweet['username'], tweet['text'], kategori, konu_etiketi, media_url=tweet.get('media_url'))
+            # Veritabanına kaydet (Resim ve Tweet Linki varsa ekle)
+            save_tweet(tweet['author'], tweet['username'], tweet['text'], kategori, konu_etiketi, media_url=tweet.get('media_url'), tweet_url=tweet.get('tweet_url'))
             yield f"✅ {tweet['username']}: [{konu_etiketi}]"
     
     print("\n" + "-" * 50)
