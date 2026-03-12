@@ -10,7 +10,7 @@ from categorize_engine import run_categorization_process
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V27.0 LUXURY",
+    page_title="NucleusX AI V28.0 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -127,23 +127,23 @@ st.markdown("""
         flex-shrink: 0 !important;
     }
     
-    /* V27.0 Category Colors */
-    .cat-turkiye { border-top-color: #1e3a8a !important; }
-    .cat-dunya { border-top-color: #0f172a !important; }
-    .cat-ekonomi { border-top-color: #059669 !important; }
-    .cat-muzik { border-top-color: #7c3aed !important; }
-    .cat-teknoloji { border-top-color: #2563eb !important; }
-    .cat-spor { border-top-color: #dc2626 !important; }
-    .cat-eglence { border-top-color: #db2777 !important; }
+    /* V28.0 Pastel Category Colors */
+    .cat-turkiye { border-top-color: #fca5a5 !important; } /* Pastel Kırmızı */
+    .cat-ekonomi { border-top-color: #fde047 !important; } /* Pastel Sarı */
+    .cat-muzik { border-top-color: #c4b5fd !important; }    /* Pastel Eflatun */
+    .cat-dunya { border-top-color: #d6d3d1 !important; }   /* Pastel Kahverengi */
+    .cat-teknoloji { border-top-color: #93c5fd !important; } /* Pastel Mavi */
+    .cat-spor { border-top-color: #86efac !important; }      /* Pastel Yeşil */
+    .cat-eglence { border-top-color: #fdba74 !important; }  /* Pastel Turuncu */
 
-    /* Category Specific Hover Glows */
-    .news-card.cat-turkiye:hover { box-shadow: 0 20px 25px -5px rgba(30, 58, 138, 0.15) !important; border-color: #1e3a8a !important; }
-    .news-card.cat-dunya:hover { box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.15) !important; border-color: #0f172a !important; }
-    .news-card.cat-ekonomi:hover { box-shadow: 0 20px 25px -5px rgba(5, 150, 105, 0.15) !important; border-color: #059669 !important; }
-    .news-card.cat-muzik:hover { box-shadow: 0 20px 25px -5px rgba(124, 58, 237, 0.15) !important; border-color: #7c3aed !important; }
-    .news-card.cat-teknoloji:hover { box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.15) !important; border-color: #2563eb !important; }
-    .news-card.cat-spor:hover { box-shadow: 0 20px 25px -5px rgba(220, 38, 38, 0.15) !important; border-color: #dc2626 !important; }
-    .news-card.cat-eglence:hover { box-shadow: 0 20px 25px -5px rgba(219, 39, 119, 0.15) !important; border-color: #db2777 !important; }
+    /* Category Specific Hover Glows (Soft Pastel) */
+    .news-card.cat-turkiye:hover { box-shadow: 0 15px 30px rgba(252, 165, 165, 0.25) !important; border-color: #fca5a5 !important; }
+    .news-card.cat-ekonomi:hover { box-shadow: 0 15px 30px rgba(253, 224, 71, 0.25) !important; border-color: #fde047 !important; }
+    .news-card.cat-muzik:hover { box-shadow: 0 15px 30px rgba(196, 181, 253, 0.25) !important; border-color: #c4b5fd !important; }
+    .news-card.cat-dunya:hover { box-shadow: 0 15px 30px rgba(214, 211, 209, 0.25) !important; border-color: #d6d3d1 !important; }
+    .news-card.cat-teknoloji:hover { box-shadow: 0 15px 30px rgba(147, 197, 253, 0.25) !important; border-color: #93c5fd !important; }
+    .news-card.cat-spor:hover { box-shadow: 0 15px 30px rgba(134, 239, 172, 0.25) !important; border-color: #86efac !important; }
+    .news-card.cat-eglence:hover { box-shadow: 0 15px 30px rgba(253, 186, 116, 0.25) !important; border-color: #fdba74 !important; }
 
     @media (max-width: 1400px) {
         .category-column { flex: 0 0 320px !important; min-width: 320px !important; }
@@ -365,7 +365,7 @@ with st.sidebar:
 # Top Nav
 st.markdown(f"""
     <div class="top-nav">
-        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v27.0</small></div>
+        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v28.0</small></div>
         <div style="display:flex; gap:15px; align-items:center;">
             <div style="width:10px; height:10px; background:#22c55e; border-radius:50%; box-shadow:0 0 10px #22c55e;"></div>
         </div>
@@ -456,4 +456,4 @@ if current_page == "Dashboard":
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX V27.0 Ultimate - Developed by Antigravity AI")
+st.sidebar.caption("NucleusX V28.0 Ultimate - Developed by Antigravity AI")
