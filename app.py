@@ -7,7 +7,7 @@ from categorize_engine import run_categorization_process
 
 # Sayfa Konfigürasyonu
 st.set_page_config(
-    page_title="NucleusX AI V15.0 CLEAN",
+    page_title="NucleusX AI V16.0 TITAN",
     page_icon=None,
     layout="wide",
     initial_sidebar_state="expanded"
@@ -23,114 +23,121 @@ st.markdown("""
     
     * { font-family: 'Inter', sans-serif; }
 
-    /* Ana Arka Plan */
+    /* Ana Arka Plan - Premium Light */
     .stApp {
-        background-color: #ffffff !important;
+        background-color: #f8fafc !important;
     }
     
-    /* Header (Top Nav) */
+    /* Header (Top Nav) - Premium Style */
     .top-nav {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 10px 40px;
-        background: #ffffff;
-        border-bottom: 2px solid #000000;
+        padding: 15px 40px;
+        background: white;
+        border-bottom: 1px solid #e2e8f0;
         position: sticky;
         top: 0;
         z-index: 1000;
         margin-bottom: 25px;
         margin-left: -5rem;
         margin-right: -5rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
     .logo-text {
-        font-weight: 900;
-        font-size: 1.6rem;
-        color: #000000;
-        letter-spacing: -1px;
+        font-weight: 800;
+        font-size: 1.5rem;
+        color: #1e293b;
     }
+    .logo-text b { color: #2563eb; }
     .search-box {
-        background: #f8fafc;
-        border: 1px solid #000000;
-        padding: 8px 15px;
-        border-radius: 4px;
-        width: 350px;
-        color: #000000;
-        font-size: 0.85rem;
+        background: #f1f5f9;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        width: 400px;
+        color: #64748b;
+        font-size: 0.9rem;
     }
 
-    /* Sidebar - PURE WHITE CLEAN */
+    /* Sidebar - CURRENT CLEAN STYLE (User requested same) */
     section[data-testid="stSidebar"] {
         background-color: #ffffff !important;
-        border-right: 1px solid #000000 !important;
+        border-right: 1px solid #e2e8f0 !important;
     }
     section[data-testid="stSidebar"] .stMarkdown p {
-        color: #000000 !important;
+        color: #1e293b !important;
     }
     
-    /* Premium Sidebar Buttons - V15.0 Minimalist */
+    /* Sidebar Buttons - Minimalist */
     div[data-testid="stSidebar"] div.stButton > button {
         background-color: #ffffff !important;
-        border: 1px solid #000000 !important;
-        color: #000000 !important;
+        border: 1px solid #e2e8f0 !important;
+        color: #1e293b !important;
         text-align: left !important;
-        padding: 10px 20px !important;
-        font-size: 1rem !important;
+        padding: 10px 15px !important;
+        font-size: 0.9rem !important;
         font-weight: 500 !important;
-        border-radius: 0px !important; /* Sharp corners for clean look */
-        transition: none !important;
+        border-radius: 8px !important;
         margin-bottom: 5px !important;
         width: 100% !important;
     }
     div[data-testid="stSidebar"] div.stButton > button:hover {
-        background-color: #e0e0e0 !important;
-        border-width: 1px !important;
+        background-color: #f8fafc !important;
+        border-color: #2563eb !important;
     }
 
-    /* News Cards */
+    /* News Cards - REVERT TO PREMIUM */
     .news-card {
         background: #ffffff !important;
-        border-radius: 0px;
-        padding: 20px;
-        border: 1px solid #000000;
+        border-radius: 12px;
+        padding: 15px;
+        border: 1px solid #e2e8f0;
         margin-bottom: 20px;
-        box-shadow: none !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        transition: all 0.2s;
+    }
+    .news-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.06);
     }
     .card-title {
-        color: #000000 !important;
-        font-weight: 800;
-        font-size: 1.1rem;
+        color: #1e40af !important;
+        font-weight: 700;
+        font-size: 1.05rem;
         line-height: 1.4;
         margin-bottom: 10px;
+        text-decoration: none;
     }
     .card-meta {
-        color: #000000 !important;
+        color: #64748b !important;
         font-size: 0.8rem;
-        font-weight: 600;
+        font-weight: 400;
+        display: flex;
+        gap: 10px;
     }
 
     /* Column Headers - Grid Style */
     .column-header {
-        height: 80px;
         background: #ffffff;
-        border-radius: 0px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
+        color: #1e40af;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 700;
+        text-align: center;
+        border: 1px solid #e2e8f0;
         margin-bottom: 20px;
-        border: 1px solid #000000;
-        box-shadow: none;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     }
     .column-header h3 {
-        color: #000000 !important;
+        color: #1e40af !important;
         font-size: 0.95rem !important;
         font-weight: 700 !important;
         margin: 0 !important;
         white-space: nowrap;
     }
     .column-header small {
-        color: #000000;
+        color: #64748b;
         font-size: 0.75rem;
     }
 
@@ -212,12 +219,12 @@ st.sidebar.markdown("---")
 df = load_data()
 
 # LOG BİLGİSİ
-print("--- CLEAN LIGHT V15.0 DEPLOY ---")
+print("--- !!! HYBRID TITAN V16.0 DEPLOY !!! ---")
 
 # Canlıda cache'i temizle
-if 'init_v15' not in st.session_state:
+if 'init_v16' not in st.session_state:
     st.cache_data.clear()
-    st.session_state.init_v15 = True
+    st.session_state.init_v16 = True
 
 # Oturum Durumu (Navigasyon ve Filtreler İçin)
 if 'current_page' not in st.session_state:
@@ -237,23 +244,29 @@ def set_page(page_name):
 st.markdown("""
     <style>
     div.stButton > button:first-child[key^="t_"] {
-        border: 1px solid #000000 !important;
+        border: 1px solid #2563eb !important;
         border-radius: 30px !important;
-        background: #ffffff !important;
-        color: #000000 !important;
+        background: #e0f2fe !important;
+        color: #1e40af !important;
         height: 40px !important;
+        font-weight: 600 !important;
+    }
+    div.stButton > button:first-child[key^="t_"]:hover {
+        background: #d0effc !important;
+        border-color: #1e40af !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
 # Sticky Top Nav (Logo & Search)
 st.markdown("""
+    <div class="top-nav">
         <div class="logo-text">
-            NUCLEUS <b>X</b> <span style="font-size: 0.8rem; opacity: 0.5;">v15.0 CLEAN</span>
+            ⚛️ NUCLEUS <b>X</b> <span style="font-size: 0.8rem; opacity: 0.5;">v16.0 TITAN</span>
         </div>
-        <div class="search-box"> Haberlerde veya konularda ara...</div>
+        <div class="search-box">🔍 Haberlerde veya konularda ara...</div>
         <div style="display: flex; gap: 20px; align-items: center; font-size: 1.2rem;">
-            <span></span> <span></span> <span style="background: #e0e0e0; width: 35px; height: 35px; border-radius: 50%; padding: 5px; cursor: pointer;"></span>
+            <span>❓</span> <span>🔔</span> <span style="background: #e2e8f0; width: 35px; height: 35px; border-radius: 50%; padding: 5px; cursor: pointer;">👤</span>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -293,8 +306,10 @@ with st.sidebar:
             st.sidebar.markdown(f"""
                 <style>
                 div[data-testid="stSidebar"] div.stButton > button[key="nav_btn_{item['name']}"] {{
-                    background-color: #000000 !important;
-                    color: #ffffff !important;
+                    background-color: #2563eb !important;
+                    color: white !important;
+                    border: none !important;
+                    font-weight: 700 !important;
                 }}
                 </style>
             """, unsafe_allow_html=True)
@@ -350,9 +365,17 @@ if st.session_state.current_page != "Dashboard":
     # Başlığı bulalım
     cat_label = next((item["label"] for item in nav_items if item["name"] == cat_name), cat_name)
     
+    # Kategori İkonları (İçerik için)
+    cat_icons = {
+        "Dashboard": "🏠", "Türkiye": "🇹🇷", "Ekonomi": "💰", 
+        "Teknoloji": "⚡", "Spor": "⚽", "Dünya": "🌍", 
+        "Eğlence": "🍿", "Müzik": "🎵"
+    }
+    icon = cat_icons.get(cat_name, "📰")
+
     st.markdown(f"""
         <div style="padding: 20px; background: white; border-bottom: 2px solid #3b82f6; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-            <h2 style="margin: 0; color: #1e293b; font-size: 1.8rem;">📍 {cat_label}</h2>
+            <h2 style="margin: 0; color: #1e293b; font-size: 1.8rem;">{icon} {cat_label}</h2>
             <p style="margin: 5px 0 0 0; color: #64748b; font-size: 0.9rem;">En son {cat_name} haberleri ve gelişmeleri.</p>
         </div>
     """, unsafe_allow_html=True)
@@ -376,7 +399,7 @@ if st.session_state.current_page != "Dashboard":
                 tag_label = row["topic_tag"] if row["topic_tag"] and str(row["topic_tag"]) != "None" else row["category"]
                 if not tag_label.startswith("#"): tag_label = f"#{tag_label}"
                 
-                card_html = f'<div class="news-card">{media_html}{title_html}<div style="font-size:0.95rem; color:#000000; line-height:1.4;">{clickable_content}</div><div class="card-meta"><span>{row["processed_at"]}</span><span>{tag_label}</span></div></div>'
+                card_html = f'<div class="news-card">{media_html}{title_html}<div style="font-size:0.95rem; line-height:1.4; color: #1e293b;">{clickable_content}</div><div class="card-meta"><span>🕒 {row["processed_at"]}</span><span style="color:#2563eb;">{tag_label}</span></div></div>'
                 st.markdown(card_html, unsafe_allow_html=True)
     
     if st.button("⬅️ Tüm Haberlere Dön"):
@@ -391,6 +414,13 @@ all_categories = ["Türkiye", "Dünya", "Ekonomi", "Teknoloji", "Spor", "Eğlenc
 # Sadece haber olan kategorileri göster (User Request: Boş kolonlar görünmesin)
 visible_categories = [cat for cat in all_categories if not df[df['category'] == cat].empty]
 
+# Kategori İkonları (İçerik için)
+cat_icons = {
+    "Dashboard": "🏠", "Türkiye": "🇹🇷", "Ekonomi": "💰", 
+    "Teknoloji": "⚡", "Spor": "⚽", "Dünya": "🌍", 
+    "Eğlence": "🍿", "Müzik": "🎵"
+}
+
 if not visible_categories:
     st.info("Son 3 gün içinde henüz kategorize edilmiş haber bulunamadı.")
 else:
@@ -401,7 +431,8 @@ else:
         
         with cols[i]:
             # Kolon Başlığı
-            st.markdown(f'<div class="column-header"><h3 style="font-size: 0.9rem;">{category}</h3><small>{len(cat_df)} Önemli Gelişme</small></div>', unsafe_allow_html=True)
+            icon = cat_icons.get(category, "📰")
+            st.markdown(f'<div class="column-header"><h3>{icon} {category}</h3><small>{len(cat_df)} Önemli Gelişme</small></div>', unsafe_allow_html=True)
             
             # Kolon İçeriği
             column_html = ""
@@ -505,5 +536,5 @@ if st.sidebar.button("🧹 Tüm Veritabanını Optimize Et"):
                 st.error(f"❌ Optimizasyon hatası: {e}")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX Engine v15.0 Clean")
+st.sidebar.caption("🚀 **NucleusX Engine v16.0 Titan**")
 st.sidebar.caption("Developed by Antigravity AI 🤖")
