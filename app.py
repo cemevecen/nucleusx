@@ -131,52 +131,51 @@ st.markdown("""
         margin-top: 12px;
     }
 
+    /* Column Headers - Grid Style */
     .column-header {
-        height: 60px;
-        background: #ffffff;
-        border-radius: 12px 12px 0 0;
+        height: 80px;
+        background: white;
+        border-radius: 12px;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        padding: 5px;
-        border-bottom: 2px solid #2563eb;
-        color: #1e293b;
-        margin-bottom: 15px;
+        margin-bottom: 20px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
     .column-header h3 {
+        color: #1e293b !important;
+        font-size: 0.95rem !important;
+        font-weight: 700 !important;
         margin: 0 !important;
-        font-size: 0.85rem !important;
-        font-weight: 700;
         white-space: nowrap;
-        color: #1e40af;
     }
     .column-header small {
-        font-size: 0.65rem;
-        opacity: 0.6;
         color: #64748b;
+        font-size: 0.75rem;
     }
 
-    /* Layout Reset */
+    /* Layout - Horizontal Grid */
     .block-container {
         padding-top: 0rem !important;
-        padding-left: 5rem !important;
-        padding-right: 5rem !important;
+        padding-left: 3rem !important;
+        padding-right: 3rem !important;
+        max-width: 100% !important;
     }
     
-    /* Horizontal Swipe */
     [data-testid="stHorizontalBlock"] {
         display: flex !important;
         overflow-x: auto !important;
         gap: 20px !important;
-        padding-bottom: 30px !important;
+        padding-bottom: 40px !important;
         scrollbar-width: none;
     }
     [data-testid="stHorizontalBlock"]::-webkit-scrollbar { display: none; }
     
     div[data-testid="column"] {
-        flex: 0 0 calc(19.5% - 15px) !important;
-        min-width: 300px !important;
+        flex: 0 0 320px !important;
+        min-width: 320px !important;
         flex-shrink: 0 !important;
         scroll-snap-align: start;
     }
@@ -339,33 +338,27 @@ for i, category in enumerate(all_categories):
             for tag, group in topics:
                 group = group.sort_values('processed_at', ascending=False).drop_duplicates(subset=['author']) 
                 
-                # JENERİK ETİKET İSE: Tüm haberleri tek tek dök
-                if tag in GENERIC_TAG_LIST:
-                    for _, row in group.iterrows():
-                        clickable_text = make_clickable(row['content'])
-                        media_html = f'<img src="{row["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:10px; object-fit:cover; height:180px; background:#f1f5f9;">' if row.get('media_url') else ""
+                # Jenerik ise veya değilse aynı kart yapısını kullan (Birebir Mockup)
+                for _, row in group.iterrows():
+                    # Sadece ilk haberi göster (Duplike deduplication kuralı)
+                    # Eğer jenerik değilse deduplication uygula
+                    if tag not in GENERIC_TAG_LIST:
+                        display_news = group.iloc[0]
+                        # Haber başlığını içerikten türet (İlk cümle veya ilk 10 kelime)
+                        content = display_news['content']
+                        news_title = content.split('.')[0][:80] + "..." if len(content) > 80 else content
+                        news_desc = content[len(news_title):][:150] + "..." if len(content) > 150 else content
                         
-                        column_html += f'<div class="news-card">{media_html}<div class="card-title">{row["author"]}</div><div style="font-size:0.9rem; color:#475569; margin-top:5px; line-height:1.4;">{clickable_text}</div><div class="card-meta"><span>🕒 {row["processed_at"].split(" ")[1][:5]}</span><span style="color:#2563eb;">{tag}</span></div></div>'
-                
-                # ÖZEL ETİKET İSE (Konu Hub): Sadece ilkini göster, diğerlerini say
-                else:
-                    main_news = group.iloc[0]
-                    content = main_news['content']
-                    split_match = re.search(r'[^h]:\s', content)
-                    if split_match:
-                        split_idx = split_match.start() + 1
-                        title_part = content[:split_idx].strip()
-                        desc_part = content[split_idx+1:].strip()
+                        media_html = f'<img src="{display_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px; object-fit:cover; height:180px; background:#f1f5f9;">' if display_news.get('media_url') else ""
+                        count_info = f'<div style="color:#2563eb; font-weight:bold; margin-top:8px; font-size:0.8rem;">✨ {len(group)} farklı kaynak bu konuyu geçti.</div>' if len(group) > 1 else ""
+                        
+                        column_html += f'<div class="news-card">{media_html}<div class="card-title">{news_title}</div><div style="font-size:0.85rem; color:#475569; line-height:1.4;">{news_desc}</div><div class="card-meta"><span>🔹 {display_news["author"]}</span><span>🕒 {display_news["processed_at"].split(" ")[1][:5]}</span><span>📖 5 Dak.</span><span style="color:#2563eb;">{tag}</span></div>{count_info}</div>'
+                        break # Grup için sadece bir kart bas
                     else:
-                        title_part = main_news['author']
-                        desc_part = content
-                    
-                    desc_clickable = make_clickable(desc_part)
-                    media_html = f'<img src="{main_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px; object-fit:cover; height:180px; background:#f1f5f9;">' if main_news.get('media_url') else ""
-                    
-                    count_info = f'<div style="color:#2563eb; font-weight:bold; margin-top:8px; font-size:0.8rem;">✨ {len(group)} farklı kaynak bu konuyu geçti.</div>' if len(group) > 1 else ""
-                    
-                    column_html += f'<div class="news-card" style="border-left: 4px solid #2563eb;">{media_html}<div class="card-title">{title_part}</div><div style="font-size:0.9rem; color:#475569; margin-top:5px; line-height:1.4;">{desc_clickable[:250]}</div><div class="card-meta"><span>🔹 {main_news["author"]}</span><span>🕒 {main_news["processed_at"].split(" ")[1][:5]}</span><span>📖 5 Dak.</span><span style="color:#2563eb;">{tag}</span></div>{count_info}</div>'
+                        # Jenerik taglerde her haberi bas
+                        row_title = row['content'].split('.')[0][:80] + "..."
+                        media_html = f'<img src="{row["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px; object-fit:cover; height:180px; background:#f1f5f9;">' if row.get('media_url') else ""
+                        column_html += f'<div class="news-card">{media_html}<div class="card-title">{row_title}</div><div class="card-meta"><span>🔹 {row["author"]}</span><span>🕒 {row["processed_at"].split(" ")[1][:5]}</span><span>📖 5 Dak.</span></div></div>'
             
             st.markdown(column_html.strip(), unsafe_allow_html=True)
 
