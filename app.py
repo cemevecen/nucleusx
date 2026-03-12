@@ -10,7 +10,7 @@ from categorize_engine import run_categorization_process
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V22.0 ULTIMATE",
+    page_title="NucleusX AI V22.2 PREMIUM",
     page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -150,20 +150,7 @@ def get_card_html(row, cat_name_override=None):
     media_html = f'<div style="width:100%; height:160px; overflow:hidden;"><img src="{media_url}" style="width:100%; height:100%; object-fit:cover;"></div>' if media_url else ""
     title_html = f'<a href="{tweet_url}" target="_blank">{news_title}</a>'
     
-    return f'''
-    <div class="news-card {cat_class}">
-        {media_html}
-        <div class="news-card-content">
-            <div class="card-title">{title_html}</div>
-            <div class="card-desc">{news_desc}</div>
-            <div class="card-meta">
-                <span>{author_name}</span>
-                <div class="sparkline"></div>
-                <span>{processed_at}</span>
-            </div>
-        </div>
-    </div>
-    '''
+    return f'<div class="news-card {cat_class}">{media_html}<div class="news-card-content"><div class="card-title">{title_html}</div><div class="card-desc">{news_desc}</div><div class="card-meta"><span>{author_name}</span><div class="sparkline"></div><span>{processed_at}</span></div></div></div>'
 
 @st.cache_data(ttl=600)
 def load_data():
@@ -301,7 +288,7 @@ if current_page == "Dashboard":
                 topics = cat_df.groupby('topic_tag')
                 col_html = ""
                 for t, group in topics:
-                    col_html += get_card_html(group.iloc[0]).strip()
+                    col_html += get_card_html(group.iloc[0]).strip() + "\n"
                 st.markdown(col_html, unsafe_allow_html=True)
     else:
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
