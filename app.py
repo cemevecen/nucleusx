@@ -141,28 +141,20 @@ st.markdown("""
         font-size: 0.75rem;
     }
 
-    /* Layout - Horizontal Grid */
-    .block-container {
-        padding-top: 0rem !important;
-        padding-left: 3rem !important;
-        padding-right: 3rem !important;
-        max-width: 100% !important;
-    }
-    
-    [data-testid="stHorizontalBlock"] {
+    /* Dashboard Grid - HORIZONTAL SCROLL SCOPED */
+    .main-grid > div[data-testid="stHorizontalBlock"] {
         display: flex !important;
         overflow-x: auto !important;
         gap: 20px !important;
         padding-bottom: 40px !important;
-        scrollbar-width: none;
+        scrollbar-width: thin !important;
+        scrollbar-color: #cbd5e1 transparent !important;
     }
-    [data-testid="stHorizontalBlock"]::-webkit-scrollbar { display: none; }
     
-    div[data-testid="column"] {
+    .main-grid div[data-testid="column"] {
         flex: 0 0 320px !important;
         min-width: 320px !important;
         flex-shrink: 0 !important;
-        scroll-snap-align: start;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -219,12 +211,12 @@ st.sidebar.markdown("---")
 df = load_data()
 
 # LOG BİLGİSİ
-print("--- !!! TITAN V16.2 DEPLOY !!! ---")
+print("--- !!! TITAN V16.3 DEPLOY !!! ---")
 
 # Canlıda cache'i temizle
-if 'init_v16_2' not in st.session_state:
+if 'init_v16_3' not in st.session_state:
     st.cache_data.clear()
-    st.session_state.init_v16_2 = True
+    st.session_state.init_v16_3 = True
 
 # Oturum Durumu (Navigasyon ve Filtreler İçin)
 if 'current_page' not in st.session_state:
@@ -262,11 +254,11 @@ st.markdown("""
 st.markdown("""
     <div class="top-nav">
         <div class="logo-text">
-            NUCLEUS <b>X</b> <span style="font-size: 0.8rem; opacity: 0.5;">v16.2 TITAN</span>
+            NUCLEUS <b>X</b> <span style="font-size: 0.8rem; opacity: 0.5;">v16.3 TITAN</span>
         </div>
-        <div class="search-box">🔍 Haberlerde veya konularda ara...</div>
-        <div style="display: flex; gap: 20px; align-items: center; font-size: 1.2rem;">
-            <span>❓</span> <span>🔔</span> <span style="background: #e2e8f0; width: 35px; height: 35px; border-radius: 50%; padding: 5px; cursor: pointer;">👤</span>
+        <div class="search-box"> Haberlerde ara...</div>
+        <div style="display: flex; gap: 20px; align-items: center;">
+            <span style="background: #f1f5f9; padding: 8px; border-radius: 50%;">👤</span>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -424,10 +416,11 @@ cat_icons = {
 if not visible_categories:
     st.info("Son 3 gün içinde henüz kategorize edilmiş haber bulunamadı.")
 else:
+    st.markdown('<div class="main-grid">', unsafe_allow_html=True)
     cols = st.columns(len(visible_categories))
 
     for i, category in enumerate(visible_categories):
-        cat_df = df[df['category'] == category].head(15) # Dashboard başı 15 haber yeterli
+        cat_df = df[df['category'] == category].head(15) 
         
         with cols[i]:
             # Kolon Başlığı
@@ -478,6 +471,7 @@ else:
                 """
             
             st.markdown(column_html, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # Manuel Yenileme Butonu (Test İçin Sınırsız, Ancak Kota Dostu)
 if st.sidebar.button("🔄 Şimdi Yeni Haberleri Tara"):
