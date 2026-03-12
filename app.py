@@ -219,12 +219,12 @@ st.sidebar.markdown("---")
 df = load_data()
 
 # LOG BİLGİSİ
-print("--- !!! TITAN V16.1 DEPLOY !!! ---")
+print("--- !!! TITAN V16.2 DEPLOY !!! ---")
 
 # Canlıda cache'i temizle
-if 'init_v16_1' not in st.session_state:
+if 'init_v16_2' not in st.session_state:
     st.cache_data.clear()
-    st.session_state.init_v16_1 = True
+    st.session_state.init_v16_2 = True
 
 # Oturum Durumu (Navigasyon ve Filtreler İçin)
 if 'current_page' not in st.session_state:
@@ -262,7 +262,7 @@ st.markdown("""
 st.markdown("""
     <div class="top-nav">
         <div class="logo-text">
-            NUCLEUS <b>X</b> <span style="font-size: 0.8rem; opacity: 0.5;">v16.1 TITAN</span>
+            NUCLEUS <b>X</b> <span style="font-size: 0.8rem; opacity: 0.5;">v16.2 TITAN</span>
         </div>
         <div class="search-box">🔍 Haberlerde veya konularda ara...</div>
         <div style="display: flex; gap: 20px; align-items: center; font-size: 1.2rem;">
@@ -443,16 +443,18 @@ else:
                 display_news = group.iloc[0]
                 content = display_news['content']
                 
-                # Başlık ve açıklama üretimi (Optimize edilmiş)
-                if '.' in content:
-                    news_title_raw = content.split('.')[0][:70]
-                    news_desc_raw = content[len(news_title_raw)+1:200]
+                # Başlık ve açıklama üretimi (Geliştirilmiş Split)
+                content_clean = content.replace("\n", " ")
+                if '.' in content_clean:
+                    parts = content_clean.split('.')
+                    news_title_raw = parts[0].strip()[:80]
+                    news_desc_raw = ".".join(parts[1:]).strip()[:150]
                 else:
-                    news_title_raw = content[:70]
-                    news_desc_raw = content[70:200]
+                    news_title_raw = content_clean[:80]
+                    news_desc_raw = content_clean[80:200]
                 
-                news_title = news_title_raw + "..." if len(content) > 70 else content
-                news_desc = news_desc_raw + "..." if len(content) > 200 else news_desc_raw
+                news_title = news_title_raw + "..." if len(content_clean) > 80 and not news_title_raw.endswith("...") else news_title_raw
+                news_desc = news_desc_raw + "..." if len(content_clean) > len(news_title_raw) + 10 else news_desc_raw
                 
                 media_html = f'<img src="{display_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:10px; object-fit:cover; height:160px; background:#f1f5f9;">' if display_news.get('media_url') else ""
                 
@@ -467,9 +469,9 @@ else:
                     <div class="card-title" style="font-size:0.9rem; margin-bottom:5px;">{final_title}</div>
                     <div style="font-size:0.8rem; color:#475569; line-height:1.4;">{news_desc}</div>
                     <div class="card-meta">
-                        <span>👤 {str(display_news.get('author', 'Anonim'))[:15]}</span>
+                        <span>👤 {str(display_news.get('author', 'Anonim'))[:25]}</span>
                         <span>🕒 {display_news["processed_at"]}</span>
-                        <span style="color:#2563eb; font-weight:700;">#{tag}</span>
+                        <span style="color:#2563eb; font-weight:700;">{tag if str(tag).startswith('#') else f'#{tag}'}</span>
                     </div>
                     {extra_info}
                 </div>
@@ -536,5 +538,5 @@ if st.sidebar.button("🧹 Tüm Veritabanını Optimize Et"):
                 st.error(f"❌ Optimizasyon hatası: {e}")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("🚀 **NucleusX Engine v16.1 Titan**")
+st.sidebar.caption("🚀 **NucleusX Engine v16.2 Titan**")
 st.sidebar.caption("Developed by Antigravity AI 🤖")
