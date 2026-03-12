@@ -426,7 +426,7 @@ if selected_tag:
     st.stop()
 
 if current_page != "Dashboard":
-    # Category Detail View - V32.0 WIDE LAYOUT
+    # Category Detail View - V33.0 3-COLUMN GRID
     cat_label = next((i['label'] for i in nav_items if i['name'] == current_page), current_page)
     st.markdown(f'<div style="padding: 20px 0; border-bottom: 2px solid #f1f5f9; margin-bottom: 30px;"><h2 style="font-weight:800; color:#1e3a8a;">{cat_label}</h2></div>', unsafe_allow_html=True)
     
