@@ -254,12 +254,12 @@ st.sidebar.markdown("---")
 df = load_data()
 
 # LOG BİLGİSİ
-print("--- !!! NUCLEAR DEPLOY V10.0 !!! ---")
+print("--- !!! V10.1 DEPLOY SUCCESSFUL !!! ---")
 
-# Canlıda cache'i bir kez temizlemesi için (Opsiyonel ama etkili)
-if 'init_v10' not in st.session_state:
+# Canlıda cache'i temizle
+if 'init_v10_1' not in st.session_state:
     st.cache_data.clear()
-    st.session_state.init_v10 = True
+    st.session_state.init_v10_1 = True
 
 # Oturum Durumu (Navigasyon ve Filtreler İçin)
 if 'current_page' not in st.session_state:
@@ -290,9 +290,12 @@ st.markdown("""
 
 # Sticky Top Nav (Logo & Search)
 st.markdown("""
+    <div style="background: #ef4444; color: white; padding: 10px; text-align: center; font-weight: 900; font-size: 1rem; border-bottom: 2px solid black;">
+        🚀 SİSTEM GÜNCEL: V10.1 PLATINUM (KRİTİK HATA DÜZELTİLDİ)
+    </div>
     <div class="top-nav">
         <div class="logo-text">
-            <span>⚛️</span> NUCLEUS<b>X</b> <span style="font-size: 0.8rem; opacity: 0.6; font-weight: 400;">AI NEWSROOM</span>
+            <span>⚛️</span> NUCLEUS<b>X</b> <span style="font-size: 0.8rem; color: #2563eb; font-weight: 800;">V10.1</span>
         </div>
         <div class="search-box">🔍 Search news, events or topics...</div>
         <div style="display: flex; gap: 20px; align-items: center; font-size: 1.2rem;">
@@ -381,7 +384,7 @@ if st.session_state.selected_tag:
             # Başlığa Tıklandığında Twite Gitme Özelliği
             title_html = f'<div class="card-title"><a href="{row["tweet_url"]}" target="_blank">{row["author"]}</a></div>' if row.get('tweet_url') else f'<div class="card-title">{row["author"]}</div>'
             
-            card_html = f'<div class="news-card">{media_html}{title_html}<div style="font-size:0.95rem; line-height:1.4;">{clickable_content}</div><div class="card-meta"><span>🕒 {row["processed_at"].split(" ")[1][:5]}</span><span style="color:#2563eb;">{row["category"]}</span></div></div>'
+            card_html = f'<div class="news-card">{media_html}{title_html}<div style="font-size:0.95rem; line-height:1.4;">{clickable_content}</div><div class="card-meta"><span>🕒 {row["processed_at"]}</span><span style="color:#2563eb;">{row["category"]}</span></div></div>'
             st.markdown(card_html, unsafe_allow_html=True)
     
     if st.button("⬅️ Ana Sayfaya Dön", on_click=clear_tag):
@@ -421,7 +424,7 @@ if st.session_state.current_page != "Dashboard":
                 tag_label = row["topic_tag"] if row["topic_tag"] and str(row["topic_tag"]) != "None" else row["category"]
                 if not tag_label.startswith("#"): tag_label = f"#{tag_label}"
                 
-                card_html = f'<div class="news-card">{media_html}{title_html}<div style="font-size:0.95rem; line-height:1.4;">{clickable_content}</div><div class="card-meta"><span>🕒 {row["processed_at"].split(" ")[1][:5]}</span><span style="color:#2563eb;">{tag_label}</span></div></div>'
+                card_html = f'<div class="news-card">{media_html}{title_html}<div style="font-size:0.95rem; line-height:1.4;">{clickable_content}</div><div class="card-meta"><span>🕒 {row["processed_at"]}</span><span style="color:#2563eb;">{tag_label}</span></div></div>'
                 st.markdown(card_html, unsafe_allow_html=True)
     
     if st.button("⬅️ Tüm Haberlere Dön"):
@@ -550,5 +553,5 @@ if st.sidebar.button("🧹 Tüm Veritabanını Optimize Et"):
                 st.error(f"❌ Optimizasyon hatası: {e}")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("🚀 **NucleusX Engine v10.0 Platinum**")
+st.sidebar.caption("🚀 **NucleusX Engine v10.1**")
 st.sidebar.caption("Developed by Antigravity AI 🤖")
