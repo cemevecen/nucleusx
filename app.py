@@ -7,7 +7,7 @@ from categorize_engine import run_categorization_process
 
 # Sayfa Konfigürasyonu
 st.set_page_config(
-    page_title="NucleusX AI V21.0 DUAL-CORE",
+    page_title="NucleusX AI V21.4 PREMIUM",
     page_icon=None,
     layout="wide",
     initial_sidebar_state="expanded"
@@ -304,8 +304,12 @@ if st.session_state.selected_tag:
             
             author_name = (row.get('author') or 'ANONYMOUS').upper()
             
+            # Dynamic Category Class
+            cat_val = row.get('category', 'HABER')
+            cat_class = f"cat-{cat_val.lower().replace('ü', 'u').replace('ö', 'o').replace('ı', 'i').replace('ş', 's').replace('ç', 'c')}"
+
             card_html = f'''
-            <div class="news-card">
+            <div class="news-card {cat_class}">
                 {media_html}
                 <div class="news-card-content">
                     <div class="card-title">{title_html}</div>
@@ -376,8 +380,11 @@ if st.session_state.current_page != "Dashboard":
                 
                 author_name = (row.get('author') or 'ANONYMOUS').upper()
                 
+                # Dynamic Category Class
+                cat_class = f"cat-{cat_name.lower().replace('ü', 'u').replace('ö', 'o').replace('ı', 'i').replace('ş', 's').replace('ç', 'c')}"
+
                 card_html = f'''
-                <div class="news-card">
+                <div class="news-card {cat_class}">
                     {media_html}
                     <div class="news-card-content">
                         <div class="card-title">{title_html}</div>
@@ -527,5 +534,5 @@ if st.sidebar.button("Tüm Veritabanını Optimize Et"):
                 st.error(f"Optimizasyon hatası: {e}")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX Engine v21.0 Dual-Core")
+st.sidebar.caption("NucleusX Engine v21.4 Premium")
 st.sidebar.caption("Developed by Antigravity AI")
