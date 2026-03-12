@@ -272,7 +272,7 @@ st.markdown("""
 st.markdown("""
     <div class="top-nav">
         <div class="logo-text">
-            <span>⚛️</span> NUCLEUS<b>X</b> <span style="font-size: 0.8rem; opacity: 0.9; font-weight: 700; color: #ef4444;">V8 - GÜNCEL</span>
+            <span>⚛️</span> NUCLEUS<b>X</b> <span style="font-size: 0.8rem; opacity: 0.6; font-weight: 400;">AI NEWSROOM</span>
         </div>
         <div class="search-box">🔍 Search news, events or topics...</div>
         <div style="display: flex; gap: 20px; align-items: center; font-size: 1.2rem;">
