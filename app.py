@@ -131,18 +131,28 @@ st.markdown("""
         margin-top: 12px;
     }
 
-    /* Column Headers */
     .column-header {
-        height: 70px;
+        height: 65px;
         background: white;
         border-radius: 12px;
         display: flex;
+        flex-direction: column;
+        justify-content: center;
         align-items: center;
-        padding: 0 20px;
+        padding: 5px 10px;
         margin-bottom: 20px;
         border: 1px solid #e2e8f0;
         color: #1e293b;
+    }
+    .column-header h3 {
+        margin: 0 !important;
+        font-size: 0.9rem !important;
         font-weight: 700;
+        white-space: nowrap;
+    }
+    .column-header small {
+        font-size: 0.7rem;
+        opacity: 0.7;
     }
 
     /* Layout Reset */
@@ -163,9 +173,10 @@ st.markdown("""
     [data-testid="stHorizontalBlock"]::-webkit-scrollbar { display: none; }
     
     div[data-testid="column"] {
-        flex: 0 0 calc(19% - 16px) !important;
+        flex: 0 0 calc(19.5% - 15px) !important;
         min-width: 300px !important;
         flex-shrink: 0 !important;
+        scroll-snap-align: start;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -293,16 +304,8 @@ if st.session_state.selected_tag:
         with tag_cols[idx % 3]:
             clickable_content = make_clickable(row['content'])
             media_html = f'<img src="{row["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px; object-fit:cover; height:220px; background:#f1f5f9;">' if row.get('media_url') else ""
-            st.markdown(f"""
-                <div class="news-card">
-                    {media_html}
-                    <div class="tweet-content"><b>{row['author']}</b>: {clickable_content}</div>
-                    <div class="card-footer">
-                        <span>🕒 {row['processed_at'].split(' ')[1][:5]}</span>
-                        <span style="color:#2563eb;">{row['category']}</span>
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
+            card_html = f'<div class="news-card">{media_html}<div class="card-title">{row["author"]}</div><div style="font-size:0.95rem; line-height:1.4;">{clickable_content}</div><div class="card-meta"><span>🕒 {row["processed_at"].split(" ")[1][:5]}</span><span style="color:#2563eb;">{row["category"]}</span></div></div>'
+            st.markdown(card_html, unsafe_allow_html=True)
     
     if st.button("⬅️ Ana Sayfaya Dön", on_click=clear_tag):
         st.rerun()
@@ -319,12 +322,7 @@ cols = st.columns(len(all_categories))
 for i, category in enumerate(all_categories):
     with cols[i]:
         # Kolon Başlığı
-        st.markdown(f"""
-            <div class="column-header">
-                <h3 style="font-size: 1rem;">{category}</h3>
-                <small>{len(df[df['category'] == category])} Haber</small>
-            </div>
-        """, unsafe_allow_html=True)
+        st.markdown(f'<div class="column-header"><h3 style="font-size: 0.9rem;">{category}</h3><small>{len(df[df["category"] == category])} Haber</small></div>', unsafe_allow_html=True)
         
         cat_df = df[df['category'] == category].head(30)
         
@@ -336,34 +334,31 @@ for i, category in enumerate(all_categories):
             cat_df['topic_tag'] = cat_df['topic_tag'].str.strip().str.upper()
             topics = cat_df.groupby('topic_tag')
             
-            GENERIC_TAGS = ["#GELISME", "#GELİŞME", "#GUNDEM", "#GÜNDEM", "#HABER", "#DETAY", "#SONDAKIKA", "#SONDAKİKA"]
-
             for tag, group in topics:
                 group = group.sort_values('processed_at', ascending=False).drop_duplicates(subset=['author']) 
                 main_news = group.iloc[0]
-                # Başlık ve içerik ayrımı (Eğer ":" varsa öncesi başlık gibi düşünülür mockup'ta)
-                title_part = main_news['content'].split(':')[0] if ':' in main_news['content'] else main_news['author']
-                desc_part = main_news['content'].split(':')[1] if ':' in main_news['content'] else main_news['content']
+                
+                # Linkleri bozmadan başlık/içerik ayır (İlk ":" ama http: değilse)
+                content = main_news['content']
+                split_match = re.search(r'[^h]:\s', content) # Basit bir 'özne: içerik' kontrolü
+                if split_match:
+                    split_idx = split_match.start() + 1
+                    title_part = content[:split_idx].strip()
+                    desc_part = content[split_idx+1:].strip()
+                else:
+                    title_part = main_news['author']
+                    desc_part = content
+                
+                # Linkleri tıklanabilir yap
+                desc_clickable = make_clickable(desc_part)
                 
                 media_html = f'<img src="{main_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px; object-fit:cover; height:180px; background:#f1f5f9;">' if main_news.get('media_url') else ""
                 
-                count_info = f'<div style="color:#2563eb; font-weight:bold; margin-top:8px;">✨ {len(group)} farklı kaynak bu olayı geçti.</div>' if len(group) > 1 else ""
+                count_info = f'<div style="color:#2563eb; font-weight:bold; margin-top:8px; font-size:0.8rem;">✨ {len(group)} farklı kaynak paylaştı.</div>' if len(group) > 1 else ""
                 
-                column_html += f"""
-                    <div class="news-card">
-                        {media_html}
-                        <div class="card-title">{title_part}</div>
-                        <div style="font-size:0.9rem; color:#475569; margin-top:5px;">{desc_part[:150]}...</div>
-                        <div class="card-meta">
-                            <span>🔹 {main_news['author']}</span>
-                            <span>🕒 {main_news['processed_at'].split(' ')[1][:5]}</span>
-                            <span>📖 5 Dakika Okuma</span>
-                            <span style="color:#2563eb;">{tag}</span>
-                        </div>
-                        {count_info}
-                    </div>
-                """
-            st.markdown(column_html, unsafe_allow_html=True)
+                card_html = f'<div class="news-card">{media_html}<div class="card-title">{title_part}</div><div style="font-size:0.9rem; color:#475569; margin-top:5px; line-height:1.4;">{desc_clickable[:250]}</div><div class="card-meta"><span>🔹 {main_news["author"]}</span><span>🕒 {main_news["processed_at"].split(" ")[1][:5]}</span><span>📖 5 Dak.</span><span style="color:#2563eb;">{tag}</span></div>{count_info}</div>'
+                column_html += card_html
+            st.markdown(column_html.strip(), unsafe_allow_html=True)
 
 # Manuel Yenileme Butonu (Test İçin Sınırsız, Ancak Kota Dostu)
 if st.sidebar.button("🔄 Şimdi Yeni Haberleri Tara"):
