@@ -10,7 +10,7 @@ from categorize_engine import run_categorization_process
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V30.0 LUXURY",
+    page_title="NucleusX AI V31.0 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -39,7 +39,7 @@ st.markdown("""
     /* COMMON NAV (Responsive) */
     .top-nav {
         display: flex; justify-content: space-between; align-items: center;
-        padding: 15px 25px; background: linear-gradient(to bottom, #ffffff, #f8fafc) !important; border-bottom: 2px solid #f1f5f9;
+        padding: 15px 25px; background: #f1f5f9 !important; border-bottom: 2px solid #e2e8f0;
         margin-left: -5rem; margin-right: -5rem; margin-top: -10px; margin-bottom: 20px;
     }
     .logo-text { font-weight: 800; font-size: 1.3rem; color: #000; }
@@ -388,7 +388,7 @@ with st.sidebar:
 # Top Nav
 st.markdown(f"""
     <div class="top-nav">
-        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v30.0</small></div>
+        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v31.0</small></div>
         <div style="display:flex; gap:15px; align-items:center;">
             <div style="width:10px; height:10px; background:#22c55e; border-radius:50%; box-shadow:0 0 10px #22c55e;"></div>
         </div>
@@ -479,4 +479,4 @@ if current_page == "Dashboard":
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX V30.0 Ultimate - Developed by Antigravity AI")
+st.sidebar.caption("NucleusX V31.0 Ultimate - Developed by Antigravity AI")
