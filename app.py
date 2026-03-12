@@ -10,7 +10,7 @@ from categorize_engine import run_categorization_process
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V23.4 LUXURY",
+    page_title="NucleusX AI V24.0 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -77,23 +77,27 @@ st.markdown("""
        ======================================================= */
     .stApp { background-color: #ffffff !important; }
     
-    /* SCROLLABLE CATEGORY TABS CONTAINER - FORCED */
-    div[data-testid="stHorizontalBlock"] {
+    /* NUCLEAR FIX: FORCE 4 COLUMNS & HORIZONTAL SCROLL */
+    [data-testid="stHorizontalBlock"] {
         display: flex !important;
         flex-wrap: nowrap !important;
         overflow-x: auto !important;
         overflow-y: hidden !important;
-        gap: 20px !important;
-        padding: 10px 0 30px 0 !important;
         width: 100% !important;
+        gap: 20px !important;
+        padding-bottom: 20px !important;
     }
     
-    /* 4 COLUMNS VISIBLE, OTHERS SCROLLABLE */
-    div[data-testid="stHorizontalBlock"] > div[data-testid="column"] { 
-        flex: 0 0 calc(25% - 15px) !important; 
-        min-width: calc(25% - 15px) !important;
-        max-width: calc(25% - 15px) !important;
+    /* Target columns and prevent them from shrinking below 24% (1/4th roughly) */
+    [data-testid="stHorizontalBlock"] > div[data-testid="column"] { 
+        flex: 0 0 calc(25% - 20px) !important; 
+        min-width: calc(25% - 20px) !important;
+        max-width: calc(25% - 20px) !important;
+        flex-shrink: 0 !important;
     }
+
+    /* Hide the default streamlit column width styles */
+    div[data-testid="column"] { width: auto !important; }
     
     /* TOP NAV: PRO & CLEAN */
     .top-nav {
@@ -308,7 +312,7 @@ with st.sidebar:
 # Top Nav
 st.markdown(f"""
     <div class="top-nav">
-        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v23.4</small></div>
+        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v24.0</small></div>
         <div style="display:flex; gap:15px; align-items:center;">
             <div style="width:10px; height:10px; background:#22c55e; border-radius:50%; box-shadow:0 0 10px #22c55e;"></div>
         </div>
