@@ -10,7 +10,7 @@ from categorize_engine import run_categorization_process
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V26.0 LUXURY",
+    page_title="NucleusX AI V27.0 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -116,7 +116,9 @@ st.markdown("""
         padding: 10px 0 40px 0 !important;
         width: 100% !important;
         scroll-behavior: smooth;
+        scrollbar-width: none; /* Firefox: Hide scrollbar */
     }
+    .dashboard-wrapper::-webkit-scrollbar { display: none; } /* Chrome/Safari: Hide scrollbar */
     
     .category-column { 
         flex: 0 0 350px !important; /* Fixed width to prevent squeezing */
@@ -125,11 +127,23 @@ st.markdown("""
         flex-shrink: 0 !important;
     }
     
-    /* Scrollbar styling for dashboard */
-    .dashboard-wrapper::-webkit-scrollbar { height: 8px; }
-    .dashboard-wrapper::-webkit-scrollbar-track { background: #f8fafc; border-radius: 10px; }
-    .dashboard-wrapper::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; border: 2px solid #f8fafc; }
-    .dashboard-wrapper::-webkit-scrollbar-thumb:hover { background: #64748b; }
+    /* V27.0 Category Colors */
+    .cat-turkiye { border-top-color: #1e3a8a !important; }
+    .cat-dunya { border-top-color: #0f172a !important; }
+    .cat-ekonomi { border-top-color: #059669 !important; }
+    .cat-muzik { border-top-color: #7c3aed !important; }
+    .cat-teknoloji { border-top-color: #2563eb !important; }
+    .cat-spor { border-top-color: #dc2626 !important; }
+    .cat-eglence { border-top-color: #db2777 !important; }
+
+    /* Category Specific Hover Glows */
+    .news-card.cat-turkiye:hover { box-shadow: 0 20px 25px -5px rgba(30, 58, 138, 0.15) !important; border-color: #1e3a8a !important; }
+    .news-card.cat-dunya:hover { box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.15) !important; border-color: #0f172a !important; }
+    .news-card.cat-ekonomi:hover { box-shadow: 0 20px 25px -5px rgba(5, 150, 105, 0.15) !important; border-color: #059669 !important; }
+    .news-card.cat-muzik:hover { box-shadow: 0 20px 25px -5px rgba(124, 58, 237, 0.15) !important; border-color: #7c3aed !important; }
+    .news-card.cat-teknoloji:hover { box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.15) !important; border-color: #2563eb !important; }
+    .news-card.cat-spor:hover { box-shadow: 0 20px 25px -5px rgba(220, 38, 38, 0.15) !important; border-color: #dc2626 !important; }
+    .news-card.cat-eglence:hover { box-shadow: 0 20px 25px -5px rgba(219, 39, 119, 0.15) !important; border-color: #db2777 !important; }
 
     @media (max-width: 1400px) {
         .category-column { flex: 0 0 320px !important; min-width: 320px !important; }
@@ -157,7 +171,7 @@ st.markdown("""
     .news-card {
         background: #ffffff !important;
         border: 1px solid #e2e8f0;
-        border-top: 3px solid #6366f1;
+        border-top: 3px solid #6366f1; /* Default/Fallback */
         border-radius: 4px;
         padding: 0px;
         margin-bottom: 20px;
@@ -351,7 +365,7 @@ with st.sidebar:
 # Top Nav
 st.markdown(f"""
     <div class="top-nav">
-        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v26.0</small></div>
+        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v27.0</small></div>
         <div style="display:flex; gap:15px; align-items:center;">
             <div style="width:10px; height:10px; background:#22c55e; border-radius:50%; box-shadow:0 0 10px #22c55e;"></div>
         </div>
@@ -442,4 +456,4 @@ if current_page == "Dashboard":
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX V26.0 Ultimate - Developed by Antigravity AI")
+st.sidebar.caption("NucleusX V27.0 Ultimate - Developed by Antigravity AI")
