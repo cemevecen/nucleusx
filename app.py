@@ -536,7 +536,9 @@ df = load_data()
 # Combined Header & Nav Tabs - V39.3 (Consolidated to remove phantom containers)
 header_html = f"""
     <div class="top-nav">
-        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v38.6 Luxury</small></div>
+        <a href="/?page=home" target="_self" style="text-decoration: none; color: inherit;">
+            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v38.6 Luxury</small></div>
+        </a>
     </div>
     <div class="nav-tabs-wrapper">
 """
