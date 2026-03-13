@@ -348,21 +348,30 @@ st.markdown("""
         animation: slideDown 0.3s ease-out;
     }
 
-    /* Fixed Nav Wrapper for 5+2 style */
+    /* V38.8 5+2 SCROLLABLE NAV */
     .nav-tabs-wrapper {
-        padding: 20px 40px !important;
+        padding: 20px 25px !important;
         display: flex !important;
+        flex-wrap: nowrap !important;
         overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
+        gap: 12px !important;
+        margin-left: -1rem;
+        margin-right: -1rem;
     }
+    .nav-tabs-wrapper::-webkit-scrollbar { display: none; }
+    
     .nav-chip {
-        flex: 0 0 18% !important; /* Roughly 5 items per row visible */
-        min-width: 140px;
+        flex: 0 0 calc(20% - 10px) !important; /* Forces 5 visible items (20% - gap) */
+        min-width: 130px;
         text-align: center;
         color: #000000 !important;
         background: #ffffff !important;
         border: 2px solid #e2e8f0;
-        margin-right: 15px;
+        margin-right: 0 !important;
+        padding: 10px 5px !important;
+        font-size: 0.8rem !important;
     }
 
     @keyframes slideDown {
@@ -530,16 +539,14 @@ st.markdown(f"""
 
 df = load_data()
 
-# V38.0 - DYNAMIC NAV TABS (Functional Links - MOVED UP FOR PERSISTENCE)
-st.markdown('<div class="nav-tabs-wrapper">', unsafe_allow_html=True)
-cols = st.columns(len(nav_items))
-for i, item in enumerate(nav_items):
-    with cols[i]:
-        active_class = "active" if current_page == item["name"] else ""
-        cat_class = f"category-{item['slug']}"
-        st.markdown(f'<a href="/?page={item["slug"]}" target="_self" class="nav-chip {cat_class} {active_class}">{item["label"]}</a>', unsafe_allow_html=True)
-
-st.markdown('</div>', unsafe_allow_html=True)
+# V38.8 - 5+2 DYNAMIC NAV TABS (Direct HTML for Scroll Support)
+nav_html = '<div class="nav-tabs-wrapper">'
+for item in nav_items:
+    active_class = "active" if current_page == item["name"] else ""
+    cat_class = f"category-{item['slug']}"
+    nav_html += f'<a href="/?page={item["slug"]}" target="_self" class="nav-chip {cat_class} {active_class}">{item["label"]}</a>'
+nav_html += '</div>'
+st.markdown(nav_html, unsafe_allow_html=True)
 
 # FOCUS VIEW REMOVED FROM TOP (V38.1)
 
