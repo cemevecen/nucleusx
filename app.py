@@ -660,8 +660,82 @@ if current_page != "Ana Sayfa":
             st.markdown(get_card_html(row, current_page_slug=current_slug), unsafe_allow_html=True)
             
             # Inline Expansion logic (V43.0)
+            # Inline Expansion logic (V43.0)
             if expand_url and row.get('tweet_url') == expand_url:
-                st.markdown(get_expanded_panel_html(row, current_page_slug=current_slug), unsafe_allow_html=True)
+                has_video = row.get('has_video', False)
+                tweet_url_val = row.get('tweet_url', '#')
+                if has_video and tweet_url_val and tweet_url_val != '#':
+                    # Video varsa Twitter embed'i components.html ile render et
+                    # (scripts çalışsın diye)
+                    close_url = f"/?page={current_slug}"
+                    author_name = html.escape(str(row.get('author') or 'ANONYMOUS'))
+                    author_image = row.get('author_image') or 'https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png'
+                    handle = f"@{slugify(author_name)}"
+                    content_raw = str(row.get('content', '')).strip()
+                    processed_at = row.get('processed_at', '00:00')
+                    reply_count   = int(row.get('reply_count',   0) or 0)
+                    retweet_count = int(row.get('retweet_count', 0) or 0)
+                    like_count    = int(row.get('like_count',    0) or 0)
+                    
+                    embed_panel = f"""
+                    <style>
+                    .exp {{ background:#fff; border-bottom:1px solid #eff3f4; padding:16px; position:relative; }}
+                    .exp-meta {{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }}
+                    .exp-avatar {{ width:44px; height:44px; border-radius:50%; object-fit:cover; }}
+                    .exp-name {{ font-weight:700; font-size:0.95rem; color:#0f1419; }}
+                    .exp-handle {{ color:#536471; font-size:0.85rem; }}
+                    .exp-text {{ font-size:1.05rem; color:#0f1419; line-height:1.6; margin:10px 0; }}
+                    .exp-meta-time {{ color:#536471; font-size:0.85rem; padding:10px 0; border-top:1px solid #eff3f4; }}
+                    .exp-actions {{ display:flex; justify-content:space-around; padding:10px 0;
+                                    border-top:1px solid #eff3f4; border-bottom:1px solid #eff3f4; }}
+                    .act {{ color:#536471; font-size:0.85rem; display:flex; align-items:center; gap:5px; cursor:pointer; }}
+                    .close-x {{ position:absolute; top:12px; right:16px; color:#0f1419;
+                                font-size:1.2rem; text-decoration:none; padding:6px;
+                                border-radius:50%; line-height:1; }}
+                    .close-x:hover {{ background:rgba(0,0,0,0.08); }}
+                    </style>
+                    <div class="exp">
+                        <a href="{close_url}" class="close-x" target="_self">✕</a>
+                        <div class="exp-meta">
+                            <img src="{author_image}" class="exp-avatar">
+                            <div>
+                                <div class="exp-name">{author_name}</div>
+                                <div class="exp-handle">{handle}</div>
+                            </div>
+                        </div>
+                        <div class="exp-text">{content_raw}</div>
+                        <div style="margin:12px 0; border-radius:12px; overflow:hidden;">
+                            <blockquote class="twitter-tweet" data-theme="light"
+                                        data-conversation="none"
+                                        style="margin:0; width:100%;">
+                                <a href="{tweet_url_val}"></a>
+                            </blockquote>
+                        </div>
+                        <div class="exp-meta-time">{processed_at} · Görüntülenme</div>
+                        <div class="exp-actions">
+                            <div class="act">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="#536471"><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 7.498 3.858 6.629 8.138-.064.315-.128.63-.192.95-.056.29-.114.58-.176.86-.077.34-.161.68-.248 1.02l1.26 1.26A.75.75 0 0121 15v6a.75.75 0 01-1.28.53l-2-2A.75.75 0 0117.5 19h-1.5a.75.75 0 010-1.5H17l1.5 1.5v-3.56l-.83-.83c.23-.76.45-1.53.65-2.3l.22-.86c.07-.28.13-.55.19-.82.66-3.24-1.7-6.15-4.99-6.15H9.756C6.43 4.5 3.5 7.45 3.5 10c0 1.24.48 2.39 1.36 3.23l-1.05 1.08A5.49 5.49 0 011.75 10H1.751z"/></svg>
+                                {reply_count}
+                            </div>
+                            <div class="act">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="#536471"><path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/></svg>
+                                {retweet_count}
+                            </div>
+                            <div class="act">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="#536471"><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91z"/></svg>
+                                {like_count}
+                            </div>
+                            <div class="act">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="#536471"><path d="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z"/></svg>
+                            </div>
+                        </div>
+                    </div>
+                    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+                    """
+                    components.html(embed_panel, height=700, scrolling=True)
+                else:
+                    # Video yoksa eski yöntem yeterli
+                    st.markdown(get_expanded_panel_html(row, current_page_slug=current_slug), unsafe_allow_html=True)
     else:
         st.info("Bu kategoride henüz haber yok.")
     
@@ -707,7 +781,14 @@ if current_page == "Ana Sayfa":
         dashboard_html = f"{dashboard_html}</div>" # End Dashboard Wrapper
         
         # Render the entire block at once
-        st.markdown(dashboard_html, unsafe_allow_html=True)
+        # Render the entire block at once via components.html to allow JS execution
+        components.html(
+            dashboard_html + """
+            <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+            """,
+            height=2000,
+            scrolling=True
+        )
     else:
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
