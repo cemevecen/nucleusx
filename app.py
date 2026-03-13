@@ -1,4 +1,4 @@
-import streamlit as st # V41.2 SYNC
+import streamlit as st # V41.3 SYNC
 import re
 import pandas as pd
 import time
@@ -11,7 +11,7 @@ import streamlit.components.v1 as components
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V41.2 LUXURY",
+    page_title="NucleusX AI V41.3 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -148,8 +148,8 @@ st.markdown("""
     .dashboard-wrapper::-webkit-scrollbar { display: none; } /* Chrome/Safari: Hide scrollbar */
     
     .category-column { 
-        flex: 0 0 22.7% !important; /* Perfect balance for 4.5 columns visible */
-        min-width: 290px !important;
+        flex: 0 0 19.5% !important; /* Forces 4.5 columns by allowing more space for the 5th */
+        min-width: 280px !important;
         flex-shrink: 0 !important;
     }
     
@@ -563,7 +563,7 @@ df = load_data()
 header_html = f"""
     <div class="top-nav">
         <a href="/?page=home" target="_self" style="text-decoration: none; color: inherit;">
-            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v41.2 Luxury</small></div>
+            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v41.3 Luxury</small></div>
         </a>
     </div>
 """
@@ -670,4 +670,4 @@ if current_page == "Ana Sayfa":
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX v41.2 Luxury - Developed by Antigravity AI")
+st.sidebar.caption("NucleusX v41.3 Luxury - Developed by Antigravity AI")
