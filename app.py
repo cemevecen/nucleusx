@@ -338,20 +338,50 @@ st.markdown("""
         animation: slideDown 0.3s ease-out;
     }
 
-    /* V38.8 5+2 SCROLLABLE NAV - Consolidation */
-    /* Handled in global section above */
-    .nav-tabs-wrapper::-webkit-scrollbar { display: none; }
+    /* V39.7 - UNIFIED DASHBOARD SCROLL SYSTEM */
+    .dashboard-scroll-container [data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        gap: 25px !important;
+        padding: 10px 0 30px 0 !important;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    .dashboard-scroll-container [data-testid="stHorizontalBlock"]::-webkit-scrollbar { display: none; }
     
+    .dashboard-scroll-container [data-testid="stHorizontalBlock"] > div {
+        flex: 0 0 320px !important;
+        min-width: 320px !important;
+        max-width: 320px !important;
+    }
+
     .nav-chip {
-        flex: 0 0 calc(20% - 10px) !important; /* Forces 5 visible items (20% - gap) */
-        min-width: 130px;
+        display: block !important;
+        width: 100% !important;
         text-align: center;
         color: #000000 !important;
         background: #ffffff !important;
         border: 2px solid #e2e8f0;
-        margin-right: 0 !important;
-        padding: 10px 5px !important;
-        font-size: 0.8rem !important;
+        padding: 12px 5px !important;
+        font-size: 0.85rem !important;
+        font-weight: 700 !important;
+        text-decoration: none !important;
+        border-radius: 20px;
+        transition: all 0.25s ease;
+        margin-bottom: 20px;
+        box-sizing: border-box;
+    }
+    
+    .nav-chip:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .nav-chip.active { border-width: 3px !important; box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important; }
+
+    @media (max-width: 991px) {
+        .dashboard-scroll-container [data-testid="stHorizontalBlock"] > div {
+            flex: 0 0 85vw !important;
+            min-width: 85vw !important;
+        }
     }
 
     @keyframes slideDown {
@@ -513,21 +543,25 @@ with st.sidebar:
 
 df = load_data()
 
-# Combined Header & Nav Tabs - V39.3 (Consolidated to remove phantom containers)
+# Combined Header & Nav Tabs - V39.7 (Unified Alignment)
 header_html = f"""
     <div class="top-nav">
         <a href="/?page=home" target="_self" style="text-decoration: none; color: inherit;">
-            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v39.6 Luxury</small></div>
+            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v39.7 Luxury</small></div>
         </a>
     </div>
-    <div class="nav-tabs-wrapper">
 """
-for item in nav_items:
-    if item["slug"] == "home": continue
-    active_class = "active" if current_page == item["name"] else ""
-    cat_class = f"category-{item['slug']}"
-    header_html += f'<a href="/?page={item["slug"]}" target="_self" class="nav-chip {cat_class} {active_class}">{item["label"]}</a>'
-header_html += '</div>'
+
+# Only show top chips bar if NOT on Ana Sayfa (On Ana Sayfa they are column headers)
+if current_page != "Ana Sayfa":
+    header_html += '<div class="nav-tabs-wrapper" style="padding: 5px 0 25px 0 !important; display: flex; gap: 12px; overflow-x: auto;">'
+    for item in nav_items:
+        if item["slug"] == "home": continue
+        active_class = "active" if current_page == item["name"] else ""
+        cat_class = f"category-{item['slug']}"
+        header_html += f'<a href="/?page={item["slug"]}" target="_self" class="nav-chip {cat_class} {active_class}" style="flex:0 0 auto; min-width:140px;">{item["label"]}</a>'
+    header_html += '</div>'
+
 st.markdown(header_html, unsafe_allow_html=True)
 
 # FOCUS VIEW REMOVED FROM TOP (V38.1)
@@ -576,19 +610,22 @@ if current_page != "Ana Sayfa":
         st.rerun()
     st.stop()
 
-# Dashboard View
+# Dashboard View - V39.7 Unified Scroll
 if current_page == "Ana Sayfa":
     visible_db_cats = [c["db"] for c in category_config if not df[df['category'] == c["db"]].empty]
     
     if visible_db_cats:
+        st.markdown('<div class="dashboard-scroll-container">', unsafe_allow_html=True)
         dashboard_cols = st.columns(len(visible_db_cats))
         
-        # Streamlit doesn't allow cross-element HTML wrapping reliably. 
-        # We handle column wrapping via CSS dashboard-wrapper in styles if needed.
         for i, db_cat in enumerate(visible_db_cats):
             with dashboard_cols[i]:
                 # Get display label and slug for the category
                 config = next(c for c in category_config if c["db"] == db_cat)
+                
+                # Render Chip as Column Header for perfect sync
+                cat_class = f"category-{config['slug']}"
+                st.markdown(f'<a href="/?page={config["slug"]}" target="_self" class="nav-chip {cat_class} active">{config["label"]}</a>', unsafe_allow_html=True)
                 
                 cat_df = df[df['category'] == db_cat].head(15)
                 topics = cat_df.groupby('topic_tag')
