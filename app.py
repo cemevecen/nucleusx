@@ -12,7 +12,7 @@ import streamlit.components.v1 as components # type: ignore
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V44.0 LUXURY",
+    page_title="NucleusX AI V45.4 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -471,7 +471,7 @@ def get_card_html(row, current_page_slug="home"):
     # URL for onclick redirection
     encoded_url = urllib.parse.quote_plus(safe_tweet_url)
     target_url = f"/?page={current_page_slug}" if is_open else f"/?page={current_page_slug}&expand={encoded_url}"
-    js_nav = f"window.open('{target_url}', '_self');"
+    js_nav = f"window.parent.location.href = '{target_url}';"
     
     # Stats Row with real counts and formatted icons
     stats_html = f"""
@@ -793,4 +793,4 @@ if current_page == "Ana Sayfa":
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX v44.0 - Developed by ivicin")
+st.sidebar.caption("NucleusX v45.4 - Developed by ivicin")
