@@ -45,18 +45,18 @@ st.markdown("""
     /* COMMON NAV (Responsive) */
     .top-nav {
         display: flex; justify-content: space-between; align-items: center;
-        padding: 15px 25px; background: #f1f5f9 !important; border-bottom: 2px solid #e2e8f0;
-        margin-left: -5rem; margin-right: -5rem; margin-top: -10px; margin-bottom: 20px;
+        padding: 15px 0; background: #ffffff !important; border-bottom: 1px solid #f1f5f9;
+        margin-top: -10px; margin-bottom: 25px;
     }
-    .logo-text { font-weight: 800; font-size: 1.3rem; color: #000; }
-    .logo-text b { color: #2563eb; }
+    .logo-text { font-weight: 800; font-size: 1.4rem; color: #000; letter-spacing: -0.5px; }
+    .logo-text b { color: #1e3a8a; }
 
     /* =======================================================
        MOBILE DESIGN: SLEEK FINTECH (Max 991px)
        ======================================================= */
     @media (max-width: 991px) {
         .stApp { background-color: #ffffff !important; }
-        .top-nav { margin-left: -1rem; margin-right: -1rem; padding: 10px 15px; background: #2563eb; border: none; }
+        .top-nav { padding: 10px 15px; background: #2563eb; border: none; }
         .logo-text { color: #ffffff !important; }
         .logo-text b { color: #ffffff !important; opacity: 0.8; }
         
@@ -84,13 +84,10 @@ st.markdown("""
         flex-wrap: nowrap !important;
         overflow-x: auto !important;
         overflow-y: hidden !important;
-        gap: 10px !important;
-        padding: 5px 40px 15px 40px !important;
-        background: #f8fafc !important;
-        border-bottom: 1px solid #f1f5f9;
-        margin-left: -5rem; margin-right: -5rem;
-        margin-top: -20px;
-        margin-bottom: 25px;
+        gap: 12px !important;
+        padding: 5px 0 25px 0 !important;
+        margin-top: -10px;
+        margin-bottom: 30px;
         scrollbar-width: none; /* Hide for clean look */
     }
     .nav-tabs-wrapper::-webkit-scrollbar { display: none; }
@@ -175,16 +172,9 @@ st.markdown("""
     .news-card.cat-spor:hover { box-shadow: 0 15px 30px rgba(134, 239, 172, 0.25) !important; border-color: #86efac !important; }
     .news-card.cat-eglence:hover { box-shadow: 0 15px 30px rgba(253, 186, 116, 0.25) !important; border-color: #fdba74 !important; }
 
-    @media (max-width: 1400px) {
-        .category-column { flex: 0 0 320px !important; min-width: 320px !important; }
-    }
     @media (max-width: 768px) {
         .category-column { flex: 0 0 85vw !important; min-width: 85vw !important; }
     }
-    
-    /* Fixed V35.1 - Removed white override */
-    .logo-text { font-weight: 900; font-size: 1.5rem; color: #000; letter-spacing: -0.5px; }
-    .logo-text b { color: #1e3a8a; }
 
     /* SIDEBAR: LUXURY MINIMALISM */
     section[data-testid="stSidebar"] { 
@@ -348,18 +338,8 @@ st.markdown("""
         animation: slideDown 0.3s ease-out;
     }
 
-    /* V38.8 5+2 SCROLLABLE NAV */
-    .nav-tabs-wrapper {
-        padding: 20px 25px !important;
-        display: flex !important;
-        flex-wrap: nowrap !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        gap: 12px !important;
-        margin-left: -1rem;
-        margin-right: -1rem;
-    }
+    /* V38.8 5+2 SCROLLABLE NAV - Consolidation */
+    /* Handled in global section above */
     .nav-tabs-wrapper::-webkit-scrollbar { display: none; }
     
     .nav-chip {
