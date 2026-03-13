@@ -1,4 +1,4 @@
-import streamlit as st # V42.1 SYNC
+import streamlit as st # V43.0 SYNC
 import re
 import pandas as pd
 import time
@@ -11,7 +11,7 @@ import streamlit.components.v1 as components
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V42.1 LUXURY",
+    page_title="NucleusX AI V43.0 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -206,15 +206,78 @@ st.markdown("""
         margin-bottom: 4px;
     }
 
-    .author-avatar {
-        width: 40px !important;
-        height: 40px !important;
-        border-radius: 50% !important;
-        margin-right: 12px !important;
-        object-fit: cover;
-        border: none !important;
-        flex-shrink: 0;
+    /* EXPANDED PANEL: TWITTER DETAIL V43.0 */
+    .expanded-panel {
+        background: #ffffff !important;
+        border: 1px solid #eff3f4 !important;
+        border-top: none !important;
+        padding: 16px !important;
+        margin-top: -1px;
+        position: relative;
+        animation: slideDown 0.2s ease-out;
     }
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 12px;
+        right: 16px;
+        color: #536471;
+        font-size: 1.2rem;
+        text-decoration: none;
+        font-weight: bold;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 50%;
+    }
+    .close-btn:hover { background: #f7f9f9; color: #0f1419; }
+
+    .expanded-text {
+        font-size: 1.35rem !important;
+        color: #0f1419 !important;
+        line-height: 1.3 !important;
+        margin-bottom: 12px;
+        font-weight: 400;
+        white-space: pre-wrap;
+    }
+
+    .expanded-media {
+        width: 100% !important;
+        border-radius: 16px !important;
+        border: 1px solid #eff3f4;
+        margin: 12px 0;
+    }
+
+    .expanded-metadata {
+        padding: 12px 0;
+        border-top: 1px solid #eff3f4;
+        color: #536471 !important;
+        font-size: 0.95rem !important;
+        display: flex;
+        gap: 15px;
+    }
+
+    .action-bar {
+        padding: 12px 0 4px 0;
+        border-top: 1px solid #eff3f4;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    .action-item {
+        color: #536471;
+        font-size: 1.1rem;
+        cursor: not-allowed;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: color 0.2s;
+    }
+    .action-item:hover { color: #1d9bf0; }
 
     .author-info {
         display: flex;
@@ -429,43 +492,49 @@ def render_twitter_embed(tweet_url):
     """
     components.html(embed_code, height=650)
 
-def get_twitter_embed_html(tweet_url):
-    """Returns raw HTML for a live Twitter embed (string version for unified dashboard)."""
-    if not tweet_url or tweet_url in ["#", "None", ""]:
-        return ""
-
-    embed_code = f"""
-    <blockquote class="twitter-tweet" data-theme="light">
-        <a href="{tweet_url}"></a>
-    </blockquote>
-    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+def get_expanded_panel_html(row, current_page_slug="home"):
+    """Generates Twitter-style detail view for expanded news cards."""
+    content_raw = str(row.get('content', '')).replace("\n", " ").strip()
+    media_url = row.get('media_url')
+    processed_at = row.get('processed_at', '00:00')
+    tweet_url = row.get('tweet_url', '#')
+    
+    close_url = f"/?page={current_page_slug}"
+    media_html = f'<img src="{media_url}" class="expanded-media">' if media_url else ""
+    
+    # Twitter Detail Layout
+    html_out = f"""
+    <div class="expanded-panel">
+        <a href="{close_url}" target="_self" class="close-btn">✕</a>
+        <div class="expanded-text">{content_raw}</div>
+        {media_html}
+        <div class="expanded-metadata">
+            <span>{processed_at}</span>
+            <span>·</span>
+            <span style="font-weight:700; color:#0f1419;">1.2K</span> <span style="color:#536471;">Views</span>
+        </div>
+        <div class="action-bar">
+            <div class="action-item">💬 <span style="font-size:0.8rem">12</span></div>
+            <div class="action-item">🔁 <span style="font-size:0.8rem">45</span></div>
+            <div class="action-item">❤️ <span style="font-size:0.8rem">156</span></div>
+            <div class="action-item">🔖 <span style="font-size:0.8rem">8</span></div>
+            <div class="action-item">📤</div>
+        </div>
+    </div>
     """
-    # Safely wrap in an iframe to ensure script execution inside st.markdown string
-    encoded_html = html.escape(f"""
-    <!DOCTYPE html>
-    <html>
-    <head><base target="_blank"></head>
-    <body style="margin:0; padding:0; display:flex; justify-content:center; background:transparent;">
-        <div style="width:100%; max-width:550px;">{embed_code}</div>
-    </body>
-    </html>
-    """)
-    return f'<div style="margin-bottom:20px;"><iframe srcdoc="{encoded_html}" style="width:100%; height:600px; border:none; overflow:hidden; background:transparent;"></iframe></div>'
+    return html_out.replace('\n', ' ')
 
 def get_card_html(row, current_page_slug="home"):
     """Generates standardized HTML for a news card with URL sanitization."""
     content_raw = str(row.get('content', '')).replace("\n", " ")
     
-    # V38.7 - Robust URL cleaning (Catches fragments like t.co, https://t, co/...)
-    # 1. Standard URLs
-    # 2. Fragmented t.co links (t.co/XYZ, co/XYZ)
-    # 3. Cut-off https://t
+    # V38.7 - Robust URL cleaning
     url_pattern = r'(https?://\S+|t\.co/\S+|co/\S+|https?://t\b)'
     clean_content = re.sub(url_pattern, '', content_raw).strip()
     
     if not clean_content: clean_content = content_raw
     
-    # Robust Title/Desc Split using Regex (Avoiding dots in URLs)
+    # Robust Title/Desc Split
     sentences = re.split(r'\.\s+', clean_content)
     
     if len(sentences) > 0 and len(sentences[0]) > 10:
@@ -490,10 +559,16 @@ def get_card_html(row, current_page_slug="home"):
     cat_val = row.get('category', 'HABER')
     cat_class = f"cat-{cat_val.lower().replace('ü', 'u').replace('ö', 'o').replace('ı', 'i').replace('ş', 's').replace('ç', 'c')}"
 
-    # Author handle logic (simplified)
+    # Author handle logic
     handle = f"@{slugify(author_name)}"
     media_html = f'<img src="{media_url}" class="card-media">' if media_url else ""
-    expand_url = f"/?page={current_page_slug}&expand={tweet_url}"
+    
+    # Determine if this card IS expanded
+    current_expanded = st.query_params.get("expand")
+    is_open = current_expanded == tweet_url
+    
+    # Toggle expansion: if open, next link collapses it.
+    expand_url = f"/?page={current_page_slug}" if is_open else f"/?page={current_page_slug}&expand={tweet_url}"
     
     # Return single-line string to prevent Streamlit HTML leak
     html_card = f'<a href="{expand_url}" target="_self" style="text-decoration:none; color:inherit; display:block;"><div class="news-card {cat_class}"><div class="card-meta-header"><img src="{author_image or "https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png"}" class="author-avatar"><div class="author-info"><span class="author-name">{author_name}</span><span class="author-handle">{handle}</span></div></div><div class="tweet-text">{news_title} {news_desc}</div>{media_html}<div class="card-footer"><span class="timestamp">{processed_at}</span></div></div></a>'
@@ -585,7 +660,7 @@ df = load_data()
 header_html = f"""
     <div class="top-nav">
         <a href="/?page=home" target="_self" style="text-decoration: none; color: inherit;">
-            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v42.1 Luxury</small></div>
+            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v43.0 Luxury</small></div>
         </a>
     </div>
 """
@@ -628,17 +703,13 @@ if current_page != "Ana Sayfa":
     # Filter by DB Category mapping
     cat_df = df[df['category'] == current_db_cat].head(60)
     if not cat_df.empty:
-        # 3-column grid as requested (3erli yan yana)
-        grid = st.columns(3)
+        # Category view with inline expansion
         for idx, row in cat_df.iterrows():
-            with grid[idx % 3]:
-                 st.markdown(get_card_html(row, current_page_slug=current_slug), unsafe_allow_html=True)
-                 
-                 # Inline Expansion for Categories
-                 if expand_url and row.get('tweet_url') == expand_url:
-                     st.markdown('<div class="inline-detail">', unsafe_allow_html=True)
-                     render_twitter_embed(expand_url)
-                     st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown(get_card_html(row, current_page_slug=current_slug), unsafe_allow_html=True)
+            
+            # Inline Expansion logic (V43.0)
+            if expand_url and row.get('tweet_url') == expand_url:
+                st.markdown(get_expanded_panel_html(row, current_page_slug=current_slug), unsafe_allow_html=True)
     else:
         st.info("Bu kategoride henüz haber yok.")
     
@@ -674,10 +745,10 @@ if current_page == "Ana Sayfa":
                 card_html = get_card_html(tweet, current_page_slug=current_slug)
                 column_html += card_html
                 
-                # 3. Handle Expansion (Inline below the card)
+                # 3. Handle Expansion (Inline Detail V43.0)
                 if expand_url and tweet.get('tweet_url') == expand_url:
-                    embed_html = get_twitter_embed_html(expand_url)
-                    column_html += f'<div class="inline-detail-mini">{embed_html}</div>'
+                    panel_html = get_expanded_panel_html(tweet, current_page_slug=current_slug)
+                    column_html += panel_html
             
             column_html += '</div>' # End Category Column
             dashboard_html += column_html
@@ -690,4 +761,4 @@ if current_page == "Ana Sayfa":
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX v42.1 Luxury - Developed by Antigravity AI")
+st.sidebar.caption("NucleusX v43.0 Luxury - Developed by Antigravity AI")
