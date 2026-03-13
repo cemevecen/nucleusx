@@ -11,12 +11,7 @@ import streamlit.components.v1 as components # type: ignore
 # -----------------------------------------------------------------------------
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
-st.set_page_config(
-    page_title="NucleusX AI V45.4 LUXURY",
-    page_icon="🗞️",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+st.set_page_config(page_title="NucleusX v45.5 - AI News", layout="wide", initial_sidebar_state="expanded")
 
 def slugify(text):
     """Turkish to English slug converter."""
@@ -659,4 +654,4 @@ if current_page == "Ana Sayfa":
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX v45.4 - Developed by ivicin")
+st.sidebar.caption("NucleusX v45.5 - Developed by ivicin")
