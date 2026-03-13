@@ -84,10 +84,10 @@ def generate_topic_tag(text):
         return f"#{tag}"
         
     # 3. İlk iki kelimeyi al (Basit bir çözüm)
-    words = [w for w in text.split() if len(w) > 3 and not w.startswith('http')]
+    words = [w for w in text.split() if len(str(w)) > 3 and not str(w).startswith('http')]
     if len(words) >= 2:
         tag = f"{words[0]}_{words[1]}".upper().replace(".", "").replace(",", "")
-        return f"#{tag[:20]}"
+        return f"#{str(tag)[:20]}"
         
     return "#DETAY"
 
@@ -160,6 +160,13 @@ SOURCE_MAPPING = {
     "kralpop": "Müzik", "joyturk": "Müzik", "radyofenomen": "Müzik", "backstagemuzik": "Müzik"
 }
 
+def populate_sources_table():
+    """SOURCE_MAPPING sözlüğünü veritabanına taşır (Tek seferlik)."""
+    from database import upsert_source
+    for user, cat in SOURCE_MAPPING.items():
+        upsert_source(user, cat)
+    print("✅ Sabit kaynak listesi veritabanına işlendi.")
+
 def get_fallback_category(text, username=None):
     """Haber kaynağına veya anahtar kelimelere göre kategori tahmini yapar (AI Off)."""
     if username and username.lower() in SOURCE_MAPPING:
@@ -183,9 +190,20 @@ def get_fallback_category(text, username=None):
 
 def categorize_tweet(tweet_text, username=None):
     """
-    Kategori belirleme (AI DEVRE DIŞI):
-    Önce kaynağa (username) bakar, yoksa anahtar kelimelere geçer.
+    Kategori belirleme (STRICT MAPPING V45.0):
+    1. Önce veritabanındaki kayıtlı kategorisine (sources tablosu) bakar.
+    2. Kayıtlı değilse anahtar kelimelere göre belirler ve veritabanına kaydeder.
     """
+    from database import get_source_category
+    
+    if username:
+        # Temiz kullanıcı adı
+        clean_user = username.lower().replace("@", "").strip()
+        db_cat = get_source_category(clean_user)
+        if db_cat:
+            return db_cat
+
+    # Kayıtlı değilse veya username yoksa fallback yap
     return get_fallback_category(tweet_text, username=username)
 
 def get_full_analysis(tweet_text, username=None):
@@ -251,5 +269,6 @@ def run_categorization_process():
 
 if __name__ == "__main__":
     init_db()
+    populate_sources_table() # Kaynakları senkronize et
     for status in run_categorization_process():
         print(status)

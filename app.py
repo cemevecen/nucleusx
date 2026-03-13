@@ -322,12 +322,12 @@ def get_card_html(row, current_page_slug="home"):
     
     # Title/Desc Split
     sentences = re.split(r'\.\s+', clean_content)
-    if len(sentences) > 0 and len(sentences[0]) > 10:
-        news_title = sentences[0].strip()[:100]
+    if len(sentences) > 0 and len(str(sentences[0])) > 10:
+        news_title = str(sentences[0]).strip()[:100]
         news_desc = ". ".join(sentences[1:]).strip()[:120]
     else:
-        news_title = clean_content[:100]
-        news_desc = clean_content[100:200]
+        news_title = str(clean_content)[:100]
+        news_desc = str(clean_content)[100:200]
     
     if len(clean_content) > len(news_title): news_title += "..."
     if len(news_desc) > 0 and len(clean_content) > (len(news_title) + 5): news_desc += "..."
@@ -473,7 +473,7 @@ df = load_data()
 header_html = f"""
     <div class="top-nav">
         <a href="/?page=home" target="_self" style="text-decoration: none; color: inherit;">
-            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v44.0 Luxury</small></div>
+            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v45.0 Luxury</small></div>
         </a>
     </div>
 """
@@ -561,12 +561,10 @@ if current_page == "Ana Sayfa":
                 # 3. Handle Expansion (Inline Detail V43.0)
                 if expand_url and tweet.get('tweet_url') == expand_url:
                     panel_html = get_expanded_panel_html(tweet, current_page_slug=current_slug)
-                    column_html += panel_html
+            column_html = str(column_html) + '</div>' # End Category Column
+            dashboard_html = str(dashboard_html) + column_html
             
-            column_html += '</div>' # End Category Column
-            dashboard_html += column_html
-            
-        dashboard_html += '</div>' # End Dashboard Wrapper
+        dashboard_html = str(dashboard_html) + '</div>' # End Dashboard Wrapper
         
         # Render the entire block at once
         st.markdown(dashboard_html, unsafe_allow_html=True)

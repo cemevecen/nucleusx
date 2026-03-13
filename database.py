@@ -52,6 +52,15 @@ def init_db():
                 processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
+
+        # Sources (Kaynaklar) tablosunu oluştur
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS sources (
+                username TEXT PRIMARY KEY,
+                category TEXT NOT NULL,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
         
         # OTOMATİK MİGRASYONLAR (Sütunlar yoksa ekle)
         migrations = [
@@ -80,8 +89,51 @@ def init_db():
     except Exception as e:
         print(f"✅ Supabase Bağlantı Hatası: {e}")
 
+def get_source_category(username):
+    """Kaynağın kayıtlı kategorisini döner."""
+    if not username: return None
+    username = username.strip().lower().replace("@", "")
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT category FROM sources WHERE username = %s", (username,))
+        result = cursor.fetchone()
+        return result[0] if result else None
+    except Exception as e:
+        print(f"❌ Kategori çekilirken hata: {e}")
+        return None
+    finally:
+        cursor.close()
+        conn.close()
+
+def upsert_source(username, category):
+    """Kaynağı bir kategoriye zimmetler."""
+    if not username or not category: return
+    username = username.strip().lower().replace("@", "")
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "INSERT INTO sources (username, category) VALUES (%s, %s) ON CONFLICT (username) DO UPDATE SET category = EXCLUDED.category, updated_at = CURRENT_TIMESTAMP",
+            (username, category)
+        )
+        conn.commit()
+    except Exception as e:
+        print(f"❌ Kaynak kaydedilirken hata: {e}")
+    finally:
+        cursor.close()
+        conn.close()
+
 def save_tweet(author, username, content, category, topic_tag="#Gundem", media_url=None, tweet_url=None, author_image=None):
-    """Tweet verisini Supabase'e kaydeder."""
+    """Tweet verisini Supabase'e kaydeder. Kullanıcı kategorisini kaynak tablosundan zorunlu tutar."""
+    # Kaynak bazlı kategori dayatması (Strict Mapping V45.0)
+    source_cat = get_source_category(username)
+    if source_cat:
+        category = source_cat
+    else:
+         # Eğer kaynak daha önce kaydedilmemişse şimdi kaydet (categorize_engine tarafından belirlenen kategori ile)
+         upsert_source(username, category)
+
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
