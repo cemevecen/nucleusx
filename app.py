@@ -1,4 +1,4 @@
-import streamlit as st # V40.5 SYNC
+import streamlit as st # V40.6 SYNC
 import re
 import pandas as pd
 import time
@@ -11,7 +11,7 @@ import streamlit.components.v1 as components
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V40.5 LUXURY",
+    page_title="NucleusX AI V40.6 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -230,7 +230,7 @@ st.markdown("""
         margin-top: 15px; 
         padding-top: 12px;
         border-top: 1px solid #f3f4f6;
-        font-size: 0.7rem !important; 
+        font-size: 0.95rem !important; /* Increased for better legibility */
         color: #6b7280; 
         display: flex; 
         justify-content: space-between; 
@@ -241,8 +241,8 @@ st.markdown("""
     }
 
     .author-avatar {
-        width: 18px;
-        height: 18px;
+        width: 22px;
+        height: 22px;
         border-radius: 50%;
         margin-right: 6px;
         object-fit: cover;
@@ -564,7 +564,7 @@ df = load_data()
 header_html = f"""
     <div class="top-nav">
         <a href="/?page=home" target="_self" style="text-decoration: none; color: inherit;">
-            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v40.5 Luxury</small></div>
+            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v40.6 Luxury</small></div>
         </a>
     </div>
 """
@@ -671,4 +671,4 @@ if current_page == "Ana Sayfa":
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX v40.5 Luxury - Developed by Antigravity AI")
+st.sidebar.caption("NucleusX v40.6 Luxury - Developed by Antigravity AI")
