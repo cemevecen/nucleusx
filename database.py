@@ -68,6 +68,7 @@ def init_db():
             "ALTER TABLE tweets ADD COLUMN IF NOT EXISTS media_url TEXT",
             "ALTER TABLE tweets ADD COLUMN IF NOT EXISTS tweet_url TEXT",
             "ALTER TABLE tweets ADD COLUMN IF NOT EXISTS author_image TEXT",
+            "ALTER TABLE tweets ADD COLUMN IF NOT EXISTS has_video BOOLEAN DEFAULT FALSE",
             "UPDATE tweets SET category = 'Ekonomi' WHERE category = 'Finans'", # Finans kategorisini Ekonomi ile birleştir
             "UPDATE tweets SET category = 'Türkiye' WHERE category = 'Ülke Gündemi'", # Ülke Gündemi adını Türkiye yap
             "UPDATE tweets SET category = 'Spor' WHERE content ILIKE '%Sadettin Saran%' AND category = 'Teknoloji'" # Misclassified Saran tweets
@@ -124,7 +125,7 @@ def upsert_source(username, category):
         cursor.close()
         conn.close()
 
-def save_tweet(author, username, content, category, topic_tag="#Gundem", media_url=None, tweet_url=None, author_image=None):
+def save_tweet(author, username, content, category, topic_tag="#Gundem", media_url=None, tweet_url=None, author_image=None, has_video=False):
     """Tweet verisini Supabase'e kaydeder. Kullanıcı kategorisini kaynak tablosundan zorunlu tutar."""
     # Kaynak bazlı kategori dayatması (Strict Mapping V45.0)
     source_cat = get_source_category(username)
@@ -138,8 +139,8 @@ def save_tweet(author, username, content, category, topic_tag="#Gundem", media_u
     cursor = conn.cursor()
     try:
         cursor.execute(
-            "INSERT INTO tweets (author, username, content, category, topic_tag, media_url, tweet_url, author_image) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING",
-            (author, username, content, category, topic_tag, media_url, tweet_url, author_image)
+            "INSERT INTO tweets (author, username, content, category, topic_tag, media_url, tweet_url, author_image, has_video) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING",
+            (author, username, content, category, topic_tag, media_url, tweet_url, author_image, has_video)
         )
         conn.commit()
     except Exception as e:

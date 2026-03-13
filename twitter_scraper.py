@@ -55,6 +55,7 @@ def fetch_user_tweets(username, limit=5):
             
             # Media URL Çekme (Resim veya Video Kapak Resmi)
             media_url = None
+            has_video = False
             media_obj = item.get("media", {})
             if isinstance(media_obj, dict):
                 # Önce resimlere bak
@@ -62,9 +63,10 @@ def fetch_user_tweets(username, limit=5):
                 if images and len(images) > 0:
                     media_url = images[0].get("media_url_https")
                 # Resim yoksa videonun kapak resmine bak
-                if not media_url:
-                    videos = media_obj.get("video", [])
-                    if videos and len(videos) > 0:
+                videos = media_obj.get("video", [])
+                if videos and len(videos) > 0:
+                    has_video = True
+                    if not media_url:
                         media_url = videos[0].get("media_url_https")
 
             if tweet_text:
@@ -74,7 +76,8 @@ def fetch_user_tweets(username, limit=5):
                     "author_image": item.get("author", {}).get("avatar"),
                     "text": tweet_text,
                     "media_url": media_url,
-                    "tweet_url": tweet_url
+                    "tweet_url": tweet_url,
+                    "has_video": has_video
                 })
                      
         return extracted_tweets

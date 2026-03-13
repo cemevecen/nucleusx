@@ -258,7 +258,8 @@ def run_categorization_process():
                 konu_etiketi, 
                 media_url=tweet.get('media_url'), 
                 tweet_url=tweet.get('tweet_url'),
-                author_image=tweet.get('author_image')
+                author_image=tweet.get('author_image'),
+                has_video=tweet.get('has_video', False)
             )
             count += 1
             if count % 10 == 0:

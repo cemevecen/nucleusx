@@ -285,23 +285,23 @@ st.markdown("""
 # -----------------------------------------------------------------------------
 # HELPERS
 # -----------------------------------------------------------------------------
-def render_twitter_embed(tweet_url):
-    """Renders a live Twitter embed using components.html."""
-    if not tweet_url or tweet_url in ["#", "None", ""]:
-        st.info("💡 Bu haberin detaylı tweeti şu an yüklenemiyor veya kaynak silinmiş olabilir.")
+def render_twitter_embed(tweet_url, dark=True):
+    if not tweet_url or str(tweet_url) in ["#", "None", ""]:
+        st.info("Bu tweete ait içerik yüklenemiyor.")
         return
-
+    theme = "dark" if dark else "light"
     embed_code = f"""
-    <div style="display: flex; justify-content: center; width: 100%; border-radius: 12px; background: #ffffff; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-        <div style="width: 550px; max-width: 100%;">
-            <blockquote class="twitter-tweet" data-theme="light">
-                <a href="{tweet_url}"></a>
-            </blockquote>
-            <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-        </div>
+    <div style="display:flex; justify-content:center; padding:20px 0;">
+        <blockquote class="twitter-tweet" 
+                    data-theme="{theme}" 
+                    data-conversation="none" 
+                    style="width:100%; max-width:550px;">
+            <a href="{tweet_url}"></a>
+        </blockquote>
+        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
     </div>
     """
-    components.html(embed_code, height=650)
+    components.html(embed_code, height=700, scrolling=True)
 
 def get_expanded_panel_html(row, current_page_slug="home"):
     """Generates X-style detail view for expanded news cards."""
@@ -314,7 +314,25 @@ def get_expanded_panel_html(row, current_page_slug="home"):
     handle = f"@{slugify(author_name)}"
     
     close_url = f"/?page={current_page_slug}"
-    media_html = f'<img src="{media_url}" class="expanded-media">' if media_url else ""
+    has_video = row.get('has_video', False)
+    tweet_url = row.get('tweet_url', '#')
+
+    if has_video and tweet_url and tweet_url != '#':
+        # Twitter'ın kendi embed sistemi — video otomatik yüklenir
+        media_html = f"""
+        <div style="display:flex; justify-content:center; margin:16px 0;">
+            <blockquote class="twitter-tweet" data-theme="dark" 
+                        data-conversation="none" 
+                        style="width:100%; max-width:550px;">
+                <a href="{tweet_url}"></a>
+            </blockquote>
+            <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+        </div>
+        """
+    elif media_url:
+        media_html = f'<img src="{media_url}" class="expanded-media">'
+    else:
+        media_html = ""
     
     # Twitter Detail Layout V44.0
     html_out = f"""
@@ -386,7 +404,34 @@ def get_card_html(row, current_page_slug="home"):
     cat_class = f"cat-{cat_mapping}"
 
     handle = f"@{slugify(author_name)}"
-    media_html = f'<img src="{media_url}" class="card-media-dashboard">' if media_url else ""
+    # Media HTML logic for Dashboard (Thumbnail + Play Button if video)
+    has_video = row.get('has_video', False)
+    
+    if has_video and media_url:
+        media_html = f"""
+        <div style="position:relative; width:100%; border-radius:12px; overflow:hidden; 
+                    border:1px solid #eff3f4; margin-top:12px; cursor:pointer;">
+            <img src="{media_url}" style="width:100%; max-height:240px; 
+                 object-fit:cover; display:block;">
+            <div style="position:absolute; bottom:10px; left:10px; 
+                        background:rgba(0,0,0,0.75); color:#fff; 
+                        font-size:0.8rem; font-weight:700; padding:3px 8px; 
+                        border-radius:4px;">▶ Video</div>
+            <div style="position:absolute; top:50%; left:50%; 
+                        transform:translate(-50%,-50%); 
+                        width:52px; height:52px; background:rgba(0,0,0,0.65); 
+                        border-radius:50%; display:flex; 
+                        align-items:center; justify-content:center;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+            </div>
+        </div>
+        """
+    elif media_url:
+        media_html = f'<img src="{media_url}" class="card-media-dashboard">'
+    else:
+        media_html = ""
     
     # Determine if this card IS expanded
     current_expanded = str(st.query_params.get("expand") or "")
@@ -435,7 +480,14 @@ def get_card_html(row, current_page_slug="home"):
 def load_data():
     try:
         conn = get_db_connection()
-        query = "SELECT author, content, category, topic_tag, processed_at, media_url, tweet_url, author_image FROM tweets WHERE processed_at > NOW() - INTERVAL '7 days' ORDER BY processed_at DESC LIMIT 500"
+        query = """
+        SELECT author, username, content, category, topic_tag, processed_at, 
+               media_url, tweet_url, author_image,
+               COALESCE(has_video, FALSE) as has_video
+        FROM tweets 
+        WHERE processed_at > NOW() - INTERVAL '7 days' 
+        ORDER BY processed_at DESC LIMIT 500
+    """
         df = pd.read_sql_query(query, conn)
         conn.close()
         if not df.empty:
