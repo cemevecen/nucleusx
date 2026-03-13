@@ -34,17 +34,13 @@ if 'init_v22_0' not in st.session_state:
 # -----------------------------------------------------------------------------
 # STYLING (Responsive Dual-Core)
 # -----------------------------------------------------------------------------
-st.markdown("""
-    <style>
-    /* GLOBAL X THEME V44.0 LUXURY */
+GLOBAL_CSS = """
     * {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
         box-sizing: border-box;
     }
-
+    body { background: transparent !important; margin: 0; padding: 0; }
     .stApp { background-color: #ffffff !important; }
-
-    /* TOP NAV */
     .top-nav {
         display: flex; justify-content: space-between; align-items: center;
         padding: 15px 0; background: #ffffff !important; border-bottom: 1px solid #eff3f4;
@@ -52,7 +48,6 @@ st.markdown("""
     }
     .logo-text { font-weight: 800; font-size: 1.4rem; color: #0f1419; letter-spacing: -0.5px; }
     .logo-text b { color: #1d9bf0; }
-
     .dashboard-wrapper {
         display: flex !important;
         flex-wrap: nowrap !important;
@@ -64,7 +59,6 @@ st.markdown("""
         scrollbar-width: thin;
         -webkit-overflow-scrolling: touch;
     }
-
     .category-column {
         flex: 0 0 19% !important;
         min-width: 280px !important;
@@ -73,8 +67,6 @@ st.markdown("""
         gap: 0px !important;
         border-right: 1px solid #eff3f4;
     }
-
-    /* NAV CHIPS: X STYLE */
     .category-column .nav-chip, .nav-tabs-wrapper .nav-chip {
         display: block !important;
         background: #ffffff !important;
@@ -92,8 +84,6 @@ st.markdown("""
     .nav-tabs-wrapper .nav-chip { margin: 0 !important; }
     .nav-chip:hover { background: #f7f9f9 !important; }
     .nav-chip.active { border-width: 3px !important; }
-
-    /* NEWS CARD: X STYLE REDESIGN */
     .news-card {
         background: #ffffff !important;
         border: none !important;
@@ -108,7 +98,6 @@ st.markdown("""
         position: relative;
     }
     .news-card:hover { background: #f7f9f9 !important; }
-
     .author-avatar-small {
         width: 36px !important;
         height: 36px !important;
@@ -117,7 +106,6 @@ st.markdown("""
         object-fit: cover;
         margin: 0 !important;
     }
-
     .author-avatar-large {
         width: 44px !important;
         height: 44px !important;
@@ -126,7 +114,6 @@ st.markdown("""
         object-fit: cover;
         margin: 0 !important;
     }
-
     .card-meta-header {
         display: flex !important;
         flex-direction: row !important;
@@ -134,14 +121,12 @@ st.markdown("""
         gap: 10px !important;
         margin-bottom: 6px !important;
     }
-
     .author-info {
         display: flex !important;
         flex-direction: column !important;
         justify-content: center !important;
         min-width: 0 !important;
     }
-
     .author-name {
         color: #0f1419;
         font-weight: 700;
@@ -151,7 +136,6 @@ st.markdown("""
         overflow: hidden;
         text-overflow: ellipsis;
     }
-
     .author-handle {
         color: #536471;
         font-size: 0.8rem !important;
@@ -160,7 +144,6 @@ st.markdown("""
         overflow: hidden;
         text-overflow: ellipsis;
     }
-
     .tweet-text {
         font-size: 0.95rem;
         color: #0f1419;
@@ -171,7 +154,6 @@ st.markdown("""
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
-
     .card-media-dashboard {
         width: 100%;
         max-height: 240px;
@@ -180,7 +162,6 @@ st.markdown("""
         margin-top: 12px;
         border: 1px solid #eff3f4;
     }
-
     .card-stats-row {
         margin-top: 10px;
         padding-top: 8px;
@@ -189,7 +170,6 @@ st.markdown("""
         justify-content: space-between;
         max-width: 90%;
     }
-
     .stat-item {
         color: #536471;
         font-size: 0.85rem;
@@ -197,8 +177,6 @@ st.markdown("""
         align-items: center;
         gap: 4px;
     }
-
-    /* EXPANDED PANEL: X DETAIL V44.0 */
     .expanded-panel {
         background: #ffffff !important;
         border-bottom: 1px solid #eff3f4 !important;
@@ -207,7 +185,6 @@ st.markdown("""
         animation: fadeIn 0.3s ease-out;
     }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
     .expanded-text {
         font-size: 1.1rem !important;
         color: #0f1419 !important;
@@ -215,7 +192,6 @@ st.markdown("""
         margin: 12px 0;
         white-space: pre-wrap;
     }
-
     .expanded-media {
         width: 100%;
         max-height: 480px;
@@ -224,14 +200,12 @@ st.markdown("""
         margin: 16px 0;
         border: 1px solid #eff3f4;
     }
-
     .expanded-metadata {
         padding: 12px 0;
         border-top: 1px solid #eff3f4;
         color: #536471;
         font-size: 0.875rem;
     }
-
     .expanded-action-bar {
         padding: 12px 0;
         border-top: 1px solid #eff3f4;
@@ -240,7 +214,6 @@ st.markdown("""
         justify-content: space-around;
         align-items: center;
     }
-
     .action-icon {
         color: #536471;
         font-size: 1.1rem;
@@ -253,7 +226,6 @@ st.markdown("""
     .action-reply:hover { color: #1d9bf0 !important; }
     .action-rt:hover { color: #00ba7c !important; }
     .action-like:hover { color: #f91880 !important; }
-
     .close-btn-x {
         position: absolute;
         top: 12px;
@@ -266,8 +238,6 @@ st.markdown("""
         line-height: 1;
     }
     .close-btn-x:hover { background: rgba(15, 20, 25, 0.1); }
-
-    /* Category Specific Borders */
     .news-card.cat-turkiye { border-left-color: #fca5a5 !important; }
     .news-card.cat-ekonomi { border-left-color: #fde047 !important; }
     .news-card.cat-teknoloji { border-left-color: #93c5fd !important; }
@@ -275,12 +245,12 @@ st.markdown("""
     .news-card.cat-dunya { border-left-color: #d6d3d1 !important; }
     .news-card.cat-eglence { border-left-color: #fdba74 !important; }
     .news-card.cat-muzik { border-left-color: #c4b5fd !important; }
-
     @media (max-width: 991px) {
         .category-column { flex: 0 0 85vw !important; min-width: 85vw !important; }
     }
-    </style>
-""", unsafe_allow_html=True)
+"""
+
+st.markdown(f"<style>{GLOBAL_CSS}</style>", unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
 # HELPERS
@@ -494,23 +464,25 @@ def get_card_html(row, current_page_slug="home"):
     </div>
     """
     
-    # Return single-line string with onclick interaction model
+    # Return single-line string with a target='_top' link wrapper for iframe compatibility
     html_card = f"""
-    <div class="news-card {cat_class}" onclick="{js_nav}">
-        <div class="card-meta-header">
-            <img src="{author_image}" class="author-avatar-small">
-            <div class="author-info">
-                <span class="author-name">{author_name}</span>
-                <span class="author-handle">{handle}</span>
+    <a href="{target_url}" target="_top" style="text-decoration:none; color:inherit; display:block;">
+        <div class="news-card {cat_class}">
+            <div class="card-meta-header">
+                <img src="{author_image}" class="author-avatar-small">
+                <div class="author-info">
+                    <span class="author-name">{author_name}</span>
+                    <span class="author-handle">{handle}</span>
+                </div>
+            </div>
+            <div class="tweet-text">{news_title} {news_desc}</div>
+            {media_html}
+            {stats_html}
+            <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
+                <span class="timestamp" style="font-size: 0.75rem;">{processed_at}</span>
             </div>
         </div>
-        <div class="tweet-text">{news_title} {news_desc}</div>
-        {media_html}
-        {stats_html}
-        <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
-            <span class="timestamp" style="font-size: 0.75rem;">{processed_at}</span>
-        </div>
-    </div>
+    </a>
     """
     return html_card.replace('\n', ' ')
 
@@ -782,7 +754,9 @@ if current_page == "Ana Sayfa":
         
         # Render the entire block at once
         # Render the entire block at once via components.html to allow JS execution
+        # Inject GLOBAL_CSS to ensure visual fidelity inside the iframe
         components.html(
+            f"<style>{GLOBAL_CSS}</style>" +
             dashboard_html + """
             <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
             """,
