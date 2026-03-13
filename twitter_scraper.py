@@ -77,7 +77,10 @@ def fetch_user_tweets(username, limit=5):
                     "text": tweet_text,
                     "media_url": media_url,
                     "tweet_url": tweet_url,
-                    "has_video": has_video
+                    "has_video": has_video,
+                    "reply_count": item.get("reply_count", 0),
+                    "retweet_count": item.get("retweet_count", 0),
+                    "like_count": item.get("favorite_count", 0) # API normally uses favorite_count
                 })
                      
         return extracted_tweets

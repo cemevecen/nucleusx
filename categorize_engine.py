@@ -259,7 +259,10 @@ def run_categorization_process():
                 media_url=tweet.get('media_url'), 
                 tweet_url=tweet.get('tweet_url'),
                 author_image=tweet.get('author_image'),
-                has_video=tweet.get('has_video', False)
+                has_video=tweet.get('has_video', False),
+                reply_count=tweet.get('reply_count', 0),
+                retweet_count=tweet.get('retweet_count', 0),
+                like_count=tweet.get('like_count', 0)
             )
             count += 1
             if count % 10 == 0:

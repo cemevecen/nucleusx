@@ -404,29 +404,60 @@ def get_card_html(row, current_page_slug="home"):
     cat_class = f"cat-{cat_mapping}"
 
     handle = f"@{slugify(author_name)}"
-    # Media HTML logic for Dashboard (Thumbnail + Play Button if video)
+    # Graphics & Stats logic
+    reply_count   = int(row.get('reply_count',   0) or 0)
+    retweet_count = int(row.get('retweet_count', 0) or 0)
+    like_count    = int(row.get('like_count',    0) or 0)
+
+    def fmt(n):
+        if n >= 1000000: return f"{n/1000000:.1f}M"
+        if n >= 1000:    return f"{n/1000:.1f}B"
+        return str(n)
+
+    # Media HTML logic for Dashboard (Thumbnail + Inline Play Button JS)
     has_video = row.get('has_video', False)
+    card_id = abs(hash(str(tweet_url))) % 999999
+    safe_tweet_url = str(tweet_url) if tweet_url else "#"
     
     if has_video and media_url:
         media_html = f"""
-        <div style="position:relative; width:100%; border-radius:12px; overflow:hidden; 
-                    border:1px solid #eff3f4; margin-top:12px; cursor:pointer;">
-            <img src="{media_url}" style="width:100%; max-height:240px; 
-                 object-fit:cover; display:block;">
-            <div style="position:absolute; bottom:10px; left:10px; 
-                        background:rgba(0,0,0,0.75); color:#fff; 
-                        font-size:0.8rem; font-weight:700; padding:3px 8px; 
-                        border-radius:4px;">▶ Video</div>
-            <div style="position:absolute; top:50%; left:50%; 
-                        transform:translate(-50%,-50%); 
-                        width:52px; height:52px; background:rgba(0,0,0,0.65); 
-                        border-radius:50%; display:flex; 
-                        align-items:center; justify-content:center;">
+        <div id="video-container-{card_id}" 
+             style="position:relative; width:100%; border-radius:12px; overflow:hidden; 
+                    border:1px solid #eff3f4; margin-top:12px; cursor:pointer; background:#000;"
+             onclick="event.stopPropagation(); playInlineVideo('{card_id}', '{safe_tweet_url}')">
+            <img id="video-thumb-{card_id}" src="{media_url}" 
+                 style="width:100%; max-height:240px; object-fit:cover; display:block;">
+            <div id="video-overlay-{card_id}"
+                 style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); 
+                        width:52px; height:52px; background:rgba(0,0,0,0.65); border-radius:50%; 
+                        display:flex; align-items:center; justify-content:center;">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
                     <path d="M8 5v14l11-7z"/>
                 </svg>
             </div>
+            <div style="position:absolute; bottom:10px; left:10px; 
+                        background:rgba(0,0,0,0.75); color:#fff; 
+                        font-size:0.78rem; font-weight:700; padding:3px 8px; 
+                        border-radius:4px;">▶ Video</div>
         </div>
+        <script>
+        function playInlineVideo(cardId, tweetUrl) {{
+            var container = document.getElementById('video-container-' + cardId);
+            if (!container) return;
+            container.innerHTML = `
+                <blockquote class="twitter-tweet" data-theme="dark" data-conversation="none" style="margin:0; width:100%;">
+                    <a href="${{tweetUrl}}"></a>
+                </blockquote>`;
+            if (window.twttr && window.twttr.widgets) {{
+                window.twttr.widgets.load(container);
+            }} else {{
+                var s = document.createElement('script');
+                s.src = 'https://platform.twitter.com/widgets.js';
+                s.async = true;
+                container.appendChild(s);
+            }}
+        }}
+        </script>
         """
     elif media_url:
         media_html = f'<img src="{media_url}" class="card-media-dashboard">'
@@ -438,21 +469,28 @@ def get_card_html(row, current_page_slug="home"):
     is_open = (current_expanded == str(tweet_url))
     
     # URL for onclick redirection
-    safe_tweet_url = str(tweet_url) if tweet_url else "#"
     encoded_url = urllib.parse.quote_plus(safe_tweet_url)
     target_url = f"/?page={current_page_slug}" if is_open else f"/?page={current_page_slug}&expand={encoded_url}"
-    
-    # Return single-line string with onclick interaction model
-    # target='_self' but using window.open for better stability in Streamlit
     js_nav = f"window.open('{target_url}', '_self');"
     
-    # Stats Row for all cards
+    # Stats Row with real counts and formatted icons
     stats_html = f"""
     <div class="card-stats-row">
-        <div class="stat-item">💬 8</div>
-        <div class="stat-item">🔁 24</div>
-        <div class="stat-item">❤️ 89</div>
-        <div class="stat-item">📤</div>
+        <div class="stat-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#536471"><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 7.498 3.858 6.629 8.138-.064.315-.128.63-.192.95-.056.29-.114.58-.176.86-.077.34-.161.68-.248 1.02l1.26 1.26c.36.36.53.86.46 1.34l-.96 6.37c-.1.66-.77 1.06-1.4.84l-5.12-1.71c-.34-.11-.56-.43-.56-.79V18.5a.75.75 0 01-.75-.75v-3.5c0-.41.34-.75.75-.75h1.5c.34 0 .64.22.72.55l.29 1.17 3.45 1.15.72-4.77-1.63-1.63A.75.75 0 0119 9.25c0-.1.01-.2.03-.29.07-.29.14-.58.21-.87.06-.28.12-.55.18-.82.64-3.13-1.62-5.97-4.83-5.97H9.756C7.478 1.5 5.5 3.43 5.5 5.75c0 .62.14 1.22.41 1.77l-1.41.71A5.23 5.23 0 014 5.75C4 2.57 6.57 0 9.756 0h4.366C18.48 0 22 3.42 21.128 8H21.5a.75.75 0 010 1.5h-.96l-.03.13-.21.87-.18.82A2.25 2.25 0 0122 13.25v.5c0 .41-.34.75-.75.75h-.5a.75.75 0 010-1.5v-.5a.75.75 0 00-.75-.75H18.5a.75.75 0 000 1.5h.25v.5a.75.75 0 01-.75.75H17a.75.75 0 010-1.5h.25v-.5a2.25 2.25 0 00-2.25-2.25z"/></svg>
+            {fmt(reply_count)}
+        </div>
+        <div class="stat-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#536471"><path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/></svg>
+            {fmt(retweet_count)}
+        </div>
+        <div class="stat-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#536471"><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91z"/></svg>
+            {fmt(like_count)}
+        </div>
+        <div class="stat-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#536471"><path d="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z"/></svg>
+        </div>
     </div>
     """
     
@@ -483,7 +521,10 @@ def load_data():
         query = """
         SELECT author, username, content, category, topic_tag, processed_at, 
                media_url, tweet_url, author_image,
-               COALESCE(has_video, FALSE) as has_video
+               COALESCE(has_video, FALSE)     as has_video,
+               COALESCE(reply_count, 0)       as reply_count,
+               COALESCE(retweet_count, 0)     as retweet_count,
+               COALESCE(like_count, 0)        as like_count
         FROM tweets 
         WHERE processed_at > NOW() - INTERVAL '7 days' 
         ORDER BY processed_at DESC LIMIT 500
