@@ -1,4 +1,4 @@
-import streamlit as st # V41.4 SYNC
+import streamlit as st # V42.0 SYNC
 import re
 import pandas as pd
 import time
@@ -11,7 +11,7 @@ import streamlit.components.v1 as components
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V41.4 LUXURY",
+    page_title="NucleusX AI V42.0 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -181,72 +181,99 @@ st.markdown("""
         border-right: 1px solid #e2e8f0 !important;
     }
 
-    /* NEWS CARD: LUXURY TWIST */
+    /* NEWS CARD: TWITTER REDESIGN V42.0 */
     .news-card {
         background: #ffffff !important;
-        border: 1px solid #e2e8f0;
-        border-top: 3px solid #6366f1; /* Default/Fallback */
-        border-radius: 4px;
-        padding: 0px;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        transition: all 0.25s ease;
+        border: 1px solid #eff3f4 !important;
+        border-left: 3px solid #6366f1 !important; /* Will be overridden by cat classes */
+        border-radius: 0px !important;
+        padding: 12px 16px !important;
+        margin-bottom: 0px !important; /* Tight spacing, divider handled by border */
+        box-shadow: none !important;
+        transition: none !important;
         overflow: hidden;
+        cursor: pointer;
     }
     .news-card:hover { 
-        transform: translateY(-4px); 
-        box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.1); 
-        border-color: #6366f1;
+        transform: none !important; 
+        box-shadow: none !important;
+        background: #f7f9f9 !important; /* Subtle hover background like Twitter */
     }
 
-    /* TYPOGRAPHY */
-    .news-card-content { padding: 16px; }
-    .card-title a { 
-        color: #000000 !important; 
-        font-weight: 800; 
-        font-size: 0.80rem !important; 
-        line-height: 1.35; 
-        text-decoration: none;
+    .card-meta-header {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 4px;
+    }
+
+    .author-avatar {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 50% !important;
+        margin-right: 12px !important;
+        object-fit: cover;
+        border: none !important;
+        flex-shrink: 0;
+    }
+
+    .author-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .author-name {
+        color: #000000 !important;
+        font-weight: 700 !important;
+        font-size: 0.9rem !important;
+        line-height: 1.2;
+    }
+
+    .author-handle {
+        color: #536471 !important;
+        font-size: 0.8rem !important;
+        font-weight: 400 !important;
+    }
+
+    .tweet-text {
+        font-size: 0.95rem !important;
+        color: #0f1419 !important;
+        line-height: 1.5 !important;
+        margin-top: 4px;
         display: -webkit-box;
         -webkit-line-clamp: 4;
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
-    .card-title a:hover { color: #4338ca !important; }
-    
-    .card-desc { 
-        font-size: 0.82rem !important; 
-        color: #4b5563; 
-        margin-top: 10px; 
-        line-height: 1.5; 
-        display: -webkit-box; 
-        -webkit-line-clamp: 2; 
-        -webkit-box-orient: vertical; 
-        overflow: hidden; 
-    }
-    
-    .card-meta { 
-        margin-top: 15px; 
-        padding-top: 12px;
-        border-top: 1px solid #f3f4f6;
-        font-size: 0.75rem !important; /* Reduced 2px as requested */
-        color: #6b7280; 
-        display: flex; 
-        justify-content: space-between; 
-        align-items: center; 
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+
+    .card-media {
+        width: 100% !important;
+        max-height: 200px !important;
+        border-radius: 12px !important;
+        object-fit: cover;
+        margin-top: 12px;
+        border: 1px solid #eff3f4;
     }
 
-    .author-avatar {
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        margin-right: 6px;
-        object-fit: cover;
-        border: 1px solid #e2e8f0;
+    .card-footer {
+        margin-top: 12px;
+        display: flex;
+        justify-content: flex-end;
     }
+
+    .timestamp {
+        color: #536471 !important;
+        font-size: 0.8rem !important;
+        font-weight: 400 !important;
+    }
+
+    /* Category Specific Borders */
+    .news-card.cat-turkiye { border-left-color: #fca5a5 !important; }
+    .news-card.cat-ekonomi { border-left-color: #fde047 !important; }
+    .news-card.cat-teknoloji { border-left-color: #93c5fd !important; }
+    .news-card.cat-spor { border-left-color: #86efac !important; }
+    .news-card.cat-dunya { border-left-color: #d6d3d1 !important; }
+    .news-card.cat-eglence { border-left-color: #fdba74 !important; }
+    .news-card.cat-muzik { border-left-color: #c4b5fd !important; }
     
     .column-header { 
         padding: 0 0 10px 0;
@@ -463,19 +490,32 @@ def get_card_html(row, current_page_slug="home"):
     cat_val = row.get('category', 'HABER')
     cat_class = f"cat-{cat_val.lower().replace('ü', 'u').replace('ö', 'o').replace('ı', 'i').replace('ş', 's').replace('ç', 'c')}"
 
-    media_html = f'<div style="width:100%; height:160px; overflow:hidden;"><img src="{media_url}" style="width:100%; height:100%; object-fit:cover;"></div>' if media_url else ""
+    # Author handle logic (simplified)
+    handle = f"@{slugify(author_name)}"
     
-    # V38.7 - FIXED: Removed inner <a> to prevent nested links. 
-    # The entire card is wrapped in the expansion link already.
-    title_html = f'<div style="color: #000000; font-weight: 800; font-size: 0.80rem; line-height: 1.35;">{news_title}</div>'
-    
-    # Author Image HTML
-    author_img_html = f'<img src="{author_image}" class="author-avatar">' if author_image else ""
+    media_html = f'<img src="{media_url}" class="card-media">' if media_url else ""
     
     # expansion routing bridge link - V38.7
     expand_url = f"/?page={current_page_slug}&expand={tweet_url}"
     
-    return f'<a href="{expand_url}" target="_self" style="text-decoration:none; color:inherit; display:block;"><div class="news-card {cat_class}">{media_html}<div class="news-card-content"><div class="card-title">{title_html}</div><div class="card-desc">{news_desc}</div><div class="card-meta"><span style="display:flex; align-items:center;">{author_img_html}{author_name}</span><div class="sparkline"></div><span>{processed_at}</span></div></div></div></a>'
+    return f"""
+    <a href="{expand_url}" target="_self" style="text-decoration:none; color:inherit; display:block;">
+        <div class="news-card {cat_class}">
+            <div class="card-meta-header">
+                <img src="{author_image or 'https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png'}" class="author-avatar">
+                <div class="author-info">
+                    <span class="author-name">{author_name}</span>
+                    <span class="author-handle">{handle}</span>
+                </div>
+            </div>
+            <div class="tweet-text">{news_title} {news_desc}</div>
+            {media_html}
+            <div class="card-footer">
+                <span class="timestamp">{processed_at}</span>
+            </div>
+        </div>
+    </a>
+    """
 
 @st.cache_data(ttl=600)
 def load_data():
@@ -563,7 +603,7 @@ df = load_data()
 header_html = f"""
     <div class="top-nav">
         <a href="/?page=home" target="_self" style="text-decoration: none; color: inherit;">
-            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v41.4 Luxury</small></div>
+            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v42.0 Luxury</small></div>
         </a>
     </div>
 """
@@ -670,4 +710,4 @@ if current_page == "Ana Sayfa":
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX v41.4 Luxury - Developed by Antigravity AI")
+st.sidebar.caption("NucleusX v42.0 Luxury - Developed by Antigravity AI")
