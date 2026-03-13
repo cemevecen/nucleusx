@@ -1,4 +1,4 @@
-import streamlit as st # V40.7 SYNC
+import streamlit as st # V40.8 SYNC
 import re
 import pandas as pd
 import time
@@ -11,7 +11,7 @@ import streamlit.components.v1 as components
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V40.7 LUXURY",
+    page_title="NucleusX AI V40.8 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -148,9 +148,9 @@ st.markdown("""
     .dashboard-wrapper::-webkit-scrollbar { display: none; } /* Chrome/Safari: Hide scrollbar */
     
     .category-column { 
-        flex: 0 0 350px !important; /* Fixed width to prevent squeezing */
-        min-width: 350px !important;
-        max-width: 350px !important;
+        flex: 0 0 24.5% !important; /* Adjusted to fit 4 columns by default */
+        min-width: 300px !important;
+        max-width: 25% !important;
         flex-shrink: 0 !important;
     }
     
@@ -230,7 +230,7 @@ st.markdown("""
         margin-top: 15px; 
         padding-top: 12px;
         border-top: 1px solid #f3f4f6;
-        font-size: 0.85rem !important; /* Slightly reduced for better balance */
+        font-size: 0.75rem !important; /* Reduced 2px as requested */
         color: #6b7280; 
         display: flex; 
         justify-content: space-between; 
@@ -241,8 +241,8 @@ st.markdown("""
     }
 
     .author-avatar {
-        width: 20px;
-        height: 20px;
+        width: 18px;
+        height: 18px;
         border-radius: 50%;
         margin-right: 6px;
         object-fit: cover;
@@ -564,7 +564,7 @@ df = load_data()
 header_html = f"""
     <div class="top-nav">
         <a href="/?page=home" target="_self" style="text-decoration: none; color: inherit;">
-            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v40.7 Luxury</small></div>
+            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v40.8 Luxury</small></div>
         </a>
     </div>
 """
@@ -671,4 +671,4 @@ if current_page == "Ana Sayfa":
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX v40.7 Luxury - Developed by Antigravity AI")
+st.sidebar.caption("NucleusX v40.8 Luxury - Developed by Antigravity AI")
