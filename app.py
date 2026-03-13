@@ -250,18 +250,22 @@ st.markdown("""
         letter-spacing: 0.5px;
     }
     
-    /* V39.0 - Simplified Column Headers (Internal usage only if needed) */
     .column-header { 
         padding: 0 0 10px 0;
         margin-bottom: 15px; 
-        border-bottom: 2px solid #f1f5f9;
+        border-bottom: 2px solid #000;
+        position: sticky;
+        top: 0;
         background: white;
+        z-index: 10;
     }
     .column-header h3 { 
-        color: #1e3a8a !important; 
-        font-size: 1.1rem !important; 
+        color: #000000 !important; 
+        font-size: 0.9rem !important; 
         margin: 0 !important; 
-        font-weight: 800 !important;
+        font-weight: 900 !important;
+        letter-spacing: 1px;
+        text-transform: uppercase;
     }
 
     /* INTERACTION ELEMENTS: DARK BLUE */
@@ -590,24 +594,57 @@ if current_page != "Ana Sayfa":
         st.rerun()
     st.stop()
 
-# Dashboard View - V39.0 Consolidated Utility
-if current_page == "Ana Sayfa":
-    # Show unified latest news from all categories
-    st.markdown(f'<div style="padding: 20px 0; border-bottom: 2px solid #f1f5f9; margin-bottom: 30px;"><h2 style="font-weight:800; color:#1e3a8a;">Son Gelişmeler</h2></div>', unsafe_allow_html=True)
-    
+# Dashboard View
+if current_page == "Ana Sayfa": # Changed from "Dashboard" to "Ana Sayfa"
+    # Trending Pills
     if not df.empty:
-        # Show top 60 recent tweets
-        all_df = df.head(60)
-        grid = st.columns(3)
-        for idx, row in all_df.iterrows():
-            with grid[idx % 3]:
-                st.markdown(get_card_html(row, current_page_slug=current_slug), unsafe_allow_html=True)
+        pop_tags = df[~df['topic_tag'].isin(["#HABER", "#GUNDEM", "#DETAY"])]['topic_tag'].value_counts().head(7).index.tolist()
+        if pop_tags:
+            pill_cols = st.columns(len(pop_tags))
+            for i, pt in enumerate(pop_tags):
+                if pill_cols[i].button(pt, key=f"p_{pt}", use_container_width=True):
+                    st.session_state.selected_tag = pt
+                    st.rerun()
+
+    # Multi Column Feed - V38.3 Definitive
+    visible_db_cats = [c["db"] for c in category_config if not df[df['category'] == c["db"]].empty]
+    
+    if visible_db_cats:
+        # Use a single container for the horizontal scroll
+        st.markdown('<div class="dashboard-wrapper">', unsafe_allow_html=True)
+        
+        # Determine column structure
+        num_cats = len(visible_db_cats)
+        dashboard_cols = st.columns(num_cats)
+        
+        for i, db_cat in enumerate(visible_db_cats):
+            with dashboard_cols[i]:
+                st.markdown(f'<div class="category-column">', unsafe_allow_html=True)
                 
-                # Inline Expansion for Home
-                if expand_url and row.get('tweet_url') == expand_url:
-                    st.markdown('<div class="inline-detail-mini">', unsafe_allow_html=True)
-                    render_twitter_embed(expand_url)
-                    st.markdown('</div>', unsafe_allow_html=True)
+                # Get display label and slug for the category
+                config = next(c for c in category_config if c["db"] == db_cat)
+                cat_label = config["label"]
+                cat_slug = config["slug"]
+                
+                st.markdown(f'<div class="column-header"><h3>{cat_label}</h3></div>', unsafe_allow_html=True)
+                
+                cat_df = df[df['category'] == db_cat].head(15)
+                topics = cat_df.groupby('topic_tag')
+                
+                for t, group in topics:
+                    tweet = group.iloc[0]
+                    # Individual markdown calls are safer and prevent raw HTML leaks
+                    st.markdown(get_card_html(tweet, current_page_slug=current_slug), unsafe_allow_html=True)
+                    
+                    # Inline Expansion in Dashboard
+                    if expand_url and tweet.get('tweet_url') == expand_url:
+                        st.markdown('<div class="inline-detail-mini">', unsafe_allow_html=True)
+                        render_twitter_embed(expand_url)
+                        st.markdown('</div>', unsafe_allow_html=True)
+                
+                st.markdown('</div>', unsafe_allow_html=True)
+        
+        st.markdown('</div>', unsafe_allow_html=True)
     else:
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
