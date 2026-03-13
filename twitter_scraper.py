@@ -47,6 +47,9 @@ def fetch_user_tweets(username, limit=5):
         for item in timeline_data[:limit]:
             # Retweetleri atla, sadece kendi gönderilerini al
             tweet_text = item.get("text", "")
+            if tweet_text and tweet_text.startswith("RT @"):
+                continue
+                
             tweet_id = item.get("tweet_id") or item.get("tweet_id_str")
             tweet_url = f"https://x.com/{username}/status/{tweet_id}" if tweet_id else None
             
