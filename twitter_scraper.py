@@ -68,6 +68,7 @@ def fetch_user_tweets(username, limit=5):
                 extracted_tweets.append({
                     "author": item.get("author", {}).get("name", username.capitalize()),
                     "username": f"@{username}",
+                    "author_image": item.get("author", {}).get("image"),
                     "text": tweet_text,
                     "media_url": media_url,
                     "tweet_url": tweet_url

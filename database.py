@@ -58,6 +58,7 @@ def init_db():
             "ALTER TABLE tweets ADD COLUMN IF NOT EXISTS topic_tag TEXT DEFAULT '#HABER'",
             "ALTER TABLE tweets ADD COLUMN IF NOT EXISTS media_url TEXT",
             "ALTER TABLE tweets ADD COLUMN IF NOT EXISTS tweet_url TEXT",
+            "ALTER TABLE tweets ADD COLUMN IF NOT EXISTS author_image TEXT",
             "UPDATE tweets SET category = 'Ekonomi' WHERE category = 'Finans'", # Finans kategorisini Ekonomi ile birleştir
             "UPDATE tweets SET category = 'Türkiye' WHERE category = 'Ülke Gündemi'", # Ülke Gündemi adını Türkiye yap
             "UPDATE tweets SET category = 'Spor' WHERE content ILIKE '%Sadettin Saran%' AND category = 'Teknoloji'" # Misclassified Saran tweets
@@ -79,14 +80,14 @@ def init_db():
     except Exception as e:
         print(f"✅ Supabase Bağlantı Hatası: {e}")
 
-def save_tweet(author, username, content, category, topic_tag="#Gundem", media_url=None, tweet_url=None):
+def save_tweet(author, username, content, category, topic_tag="#Gundem", media_url=None, tweet_url=None, author_image=None):
     """Tweet verisini Supabase'e kaydeder."""
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
         cursor.execute(
-            "INSERT INTO tweets (author, username, content, category, topic_tag, media_url, tweet_url) VALUES (%s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING",
-            (author, username, content, category, topic_tag, media_url, tweet_url)
+            "INSERT INTO tweets (author, username, content, category, topic_tag, media_url, tweet_url, author_image) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING",
+            (author, username, content, category, topic_tag, media_url, tweet_url, author_image)
         )
         conn.commit()
     except Exception as e:

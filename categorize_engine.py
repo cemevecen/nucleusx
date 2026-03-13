@@ -239,7 +239,8 @@ def run_categorization_process():
                 kategori, 
                 konu_etiketi, 
                 media_url=tweet.get('media_url'), 
-                tweet_url=tweet.get('tweet_url')
+                tweet_url=tweet.get('tweet_url'),
+                author_image=tweet.get('author_image')
             )
             count += 1
             if count % 10 == 0:

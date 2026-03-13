@@ -239,6 +239,15 @@ st.markdown("""
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
+
+    .author-avatar {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        margin-right: 6px;
+        object-fit: cover;
+        border: 1px solid #e2e8f0;
+    }
     
     .column-header { 
         padding: 0 0 10px 0;
@@ -450,6 +459,7 @@ def get_card_html(row, current_page_slug="home"):
     processed_at = html.escape(str(row.get('processed_at', '00:00')))
     tweet_url = row.get('tweet_url', '#')
     media_url = row.get('media_url')
+    author_image = row.get('author_image')
     
     cat_val = row.get('category', 'HABER')
     cat_class = f"cat-{cat_val.lower().replace('ü', 'u').replace('ö', 'o').replace('ı', 'i').replace('ş', 's').replace('ç', 'c')}"
@@ -460,16 +470,19 @@ def get_card_html(row, current_page_slug="home"):
     # The entire card is wrapped in the expansion link already.
     title_html = f'<div style="color: #000000; font-weight: 800; font-size: 0.80rem; line-height: 1.35;">{news_title}</div>'
     
+    # Author Image HTML
+    author_img_html = f'<img src="{author_image}" class="author-avatar">' if author_image else ""
+    
     # expansion routing bridge link - V38.7
     expand_url = f"/?page={current_page_slug}&expand={tweet_url}"
     
-    return f'<a href="{expand_url}" target="_self" style="text-decoration:none; color:inherit; display:block;"><div class="news-card {cat_class}">{media_html}<div class="news-card-content"><div class="card-title">{title_html}</div><div class="card-desc">{news_desc}</div><div class="card-meta"><span>{author_name}</span><div class="sparkline"></div><span>{processed_at}</span></div></div></div></a>'
+    return f'<a href="{expand_url}" target="_self" style="text-decoration:none; color:inherit; display:block;"><div class="news-card {cat_class}">{media_html}<div class="news-card-content"><div class="card-title">{title_html}</div><div class="card-desc">{news_desc}</div><div class="card-meta"><span style="display:flex; align-items:center;">{author_img_html}{author_name}</span><div class="sparkline"></div><span>{processed_at}</span></div></div></div></a>'
 
 @st.cache_data(ttl=600)
 def load_data():
     try:
         conn = get_db_connection()
-        query = "SELECT author, content, category, topic_tag, processed_at, media_url, tweet_url FROM tweets WHERE processed_at > NOW() - INTERVAL '7 days' ORDER BY processed_at DESC LIMIT 500"
+        query = "SELECT author, content, category, topic_tag, processed_at, media_url, tweet_url, author_image FROM tweets WHERE processed_at > NOW() - INTERVAL '7 days' ORDER BY processed_at DESC LIMIT 500"
         df = pd.read_sql_query(query, conn)
         conn.close()
         if not df.empty:
